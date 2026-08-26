@@ -3,12 +3,18 @@ Thumbs.db
 ehthumbs.db
 Desktop.ini
 .DS_Store
-.tmp_*
 *.log
-# intermediate / debug crops (skin-assets.json already embeds the real assets)
+*.tmp
+*.tmp_*
+
+# build + deps (plugin package lives at repo root)
+node_modules/
+lib/
+
+# 布丁狗 source: keep 白天 (source art) + assets/ (plugin uses these);
+# ignore intermediate/debug crops from build pipelines.
 布丁狗/_proc/
 布丁狗/_optimized/
 布丁狗/_processed/
 *_debug.png
 *_corner.png
-*.tmp

@@ -1,40 +1,72 @@
-# 三丽鸥 Sanrio 皮肤（DSH · 浏览器层加载）
+# dsh-sanrio-skin
 
-一套 5 角色的 DSH 皮肤：**Hello Kitty / Kuromi / 玉桂狗 / My Melody / 布丁狗**，每套都有**白天**和**夜晚**两套配色，支持**手动选角**和**每日随机**，带 kawaii 圆角、波点纹理、柔和滚动条与微动效。
+三丽鸥 Sanrio 皮肤 —— DeepSeek Harness（DSH）Web UI **原生客户端插件**。
 
-> 实现方式：在浏览器层面用 CSS 覆盖 DSH 的语义 token（--dsw-alias-*）+ 一小段 JS 注入换肤器。**不需要重编译 DSH**，直接在正在跑的页面（http://127.0.0.1:3080）生效。
+5 角色（Hello Kitty / Kuromi / 玉桂狗 / My Melody / 布丁狗）× 日/夜双模式。皮肤通过 DSH 原生
+**ThemeRuntime**（`ctx.theme.register`）注册为主题，在 **设置 → 插件 → 三丽鸥皮肤**
+标签页里切换；吉祥物、品牌覆盖、好友列等装饰层以 DOM 注入实现（宿主侧
+`/sanrio-skin-assets` 路由喂素材，素材不塞进 bundle）。
 
-## 文件
+> 本仓库是一个原生插件包，**插件本体位于仓库根目录**。此前的浏览器层版本（Tampermonkey
+> 脚本 / 控制台注入）已删除；原始图片素材（`布丁狗/`、`hellokitty/`）及插件用到的
+> `assets/` 保留。
 
-| 文件 | 用途 |
+## 结构
+
+| 文件 | 作用 |
 | --- | --- |
-| sanrio-skin.user.js | **推荐**：自包含 Tampermonkey 脚本（已内嵌全部 CSS） |
-| sanrio-skin.js | 免安装版：单独 JS（已内嵌全部 CSS），可粘贴到控制台或存成本地脚本 |
-| sanrio-skin.css | 纯调色板（供参考 / 想单独当作 <style> 注入时用） |
+| `package.json` | `dsh.bundle.patch` / `dsh.client.inject` / exports |
+| `cordis.patch.yml` | profile 补丁层：向 DSH profile 插入 loader 条目 |
+| `src/index.ts` | 宿主侧：`/sanrio-skin-assets` 路由（loopback 守卫） |
+| `src/client.tsx` | 浏览器侧：Cordis 客户端插件（注册主题 + 插件区标签页 + 装饰层） |
+| `src/themes.ts` | 5 角色 × 日夜 token 表（唯一配色数据源） |
+| `src/decor.ts` | 装饰层 DOM 注入 |
+| `scripts/build.mjs` | esbuild 构建（`lib/index.js` + `lib/client.js`） |
+| `scripts/smoke.mjs` | 无 DSH 进程的构建产物冒烟测试 |
+| `assets/` | 装饰图片（mascot.gif / peek.png / brandlogo.png / friend-*.png…） |
 
-## 两种安装方式（二选一）
+## 开发
 
-### 方式 A：Tampermonkey（最省事，刷新自动生效）
-1. 浏览器装 **Tampermonkey** 扩展。
-2. 新建脚本，粘贴 sanrio-skin.user.js 全部内容（或用 Tampermonkey 直接打开该文件导入）。
-3. 打开/刷新 http://127.0.0.1:3080，右下角出现 **🎀** 悬浮球。
+```sh
+npm install
+npm run build      # 构建 lib/
+npm run watch      # 监听重建（profile 若以 link: 安装，改完即生效）
+npx tsc --noEmit   # 类型检查
+node scripts/smoke.mjs   # 构建产物级冒烟测试（无需 DSH）
+```
 
-### 方式 B：控制台免安装（临时生效，刷新后要重贴）
-1. 打开 http://127.0.0.1:3080。
-2. 打开 DevTools（F12）→ Console。
-3. 把 sanrio-skin.js 全部内容粘贴进去回车，右下角出现 **🎀** 悬浮球。
+## 安装（本地验证）
 
-## 怎么用
-- 点击右下角 **🎀** 打开面板。
-- **5 个角色芯片**：点「Hello Kitty / Kuromi / 玉桂狗 / My Melody / 布丁狗」即换肤（写入 localStorage 持久化）。
-- **🎲 每日随机**：按当天日期算种子，当天固定、次日自动换。
-- **日/夜 按钮**：循环「跟随系统 → 白天 → 夜晚」。选「跟随系统」时，DSH 外观设为「跟随系统」就会跟着系统白天/晚上自动切。
+```sh
+dsh plugin --profile web add "C:\Users\shxdf\Documents\DSH\DSH皮肤"
+# 重启 DSH 一次，然后 设置 → 插件 → 三丽鸥皮肤 标签页切换皮肤
+```
 
-## 说明与限制（诚实告知）
-- **换色/圆角/纹理/动效/滚动条**：浏览器层 CSS 覆盖，已生效。
-- **Logo 替换**：当前用角色 emoji 叠加在品牌区（粗糙版）。若要把鲸鱼 logo 真正替换成三丽鸥图形、并让皮肤出现在 DSH 原生「外观」选项里，需要走 **DSH 原生客户端插件**路线（theme.overrideTokens + 品牌槽），这是下一阶段的工作。
-- **版权**：配色与原创小徽标均致敬三丽鸥风格，未使用官方受版权保护的角色素材；仅限个人自用，勿用于商业发布。
-- 在 DSH 自带的浅/深主题之外，本皮肤用自己的 data-ds-dark-theme 覆盖，可能与 DSH 官方主题设置略有叠加，若冲突把日/夜设为「跟随系统」即可。
+## 发布后安装（npm）
 
-## 想改配色？
-所有颜色集中在 sanrio-skin.css 的 5 个角色块里（浅色 + [data-ds-dark-theme] 深色块），改 RGB 值即可；JS 角色表在 sanrio-skin.user.js 顶部的 CHARACTERS。
+```sh
+dsh plugin --profile web add dsh-sanrio-skin
+```
+
+## 功能
+
+- **5 个角色卡片** + **白天 / 黑夜 / 跟随系统**；选中态用描边环（`inset box-shadow`），
+  不叠加背景高亮，避免与各角色配色冲突。
+- **跟随系统**：`matchMedia('(prefers-color-scheme: dark)')` 实时跟随 OS 深浅色。
+- **持久化**：`sanrio-skin:enabled` / `:character` / `:mode` 存 localStorage，
+  设成什么，重启/刷新就保持什么。
+- **还原系统皮肤**：关闭皮肤、交还给内建「外观」，重启后保持关闭。
+- 装饰层：布丁狗专属吉祥物 / 偷看 / 好友列 / 品牌覆盖；全部角色显示顶部品牌字。
+
+## 已知约定 / 待修
+
+- 主题偏好存 localStorage（Host settings wire 只放行白名单 namespace）。
+- 客户端 bundle 的 `require("react")` / `require("@deepseek-ai/...")` 在浏览器里
+  解析到 DSH shell 的模块表，构建时保持 external。
+- **待修**：皮肤/设置按钮仍会残留浏览器默认的黑色 `:focus` 描边（详见 `AGENTS.md`
+  第 10 节），后续用常驻 focus 描边环接管视觉。
+
+## 版权
+
+配色与原创小徽标致敬三丽鸥风格，未使用官方受版权保护角色素材；仅限个人自用，
+勿用于商业发布。
