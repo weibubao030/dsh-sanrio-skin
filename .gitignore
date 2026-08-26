@@ -1,0 +1,13 @@
+# OS / editor junk
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+.tmp_*
+*.log
+# intermediate / debug crops (skin-assets.json already embeds the real assets)
+布丁狗/_proc/
+布丁狗/_optimized/
+*_debug.png
+*_corner.png
+*.tmp
