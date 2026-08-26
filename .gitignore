@@ -8,6 +8,7 @@ Desktop.ini
 # intermediate / debug crops (skin-assets.json already embeds the real assets)
 布丁狗/_proc/
 布丁狗/_optimized/
+布丁狗/_processed/
 *_debug.png
 *_corner.png
 *.tmp
