@@ -1,12 +1,14 @@
 /**
  * dsh-sanrio-skin — decor layer (browser side).
  *
- * DOM decorations ported from the browser-layer skin's injectDecor(): the
- * brand text over the header (every character) plus Pompompurin-only
- * decorations (mascot, right-edge peek, friends row, brand box covering the
- * whale logo). These cannot be expressed as theme tokens, so they are
- * injected as absolutely-positioned overlay elements and cleaned up when the
- * active theme is not one of ours.
+ * DOM decorations injected on top of the theme tokens: the brand text over
+ * the header (every character) plus per-character decorations (mascot,
+ * right-edge peek, friends row, brand box covering the whale logo). These
+ * cannot be expressed as tokens, so they are absolutely-positioned overlays,
+ * cleaned up when the active theme is not one of ours.
+ *
+ * Each decorated character maps to its own asset set (see DECOR_ASSETS);
+ * the layout is uniform (Pompompurin arrangement) and only the images differ.
  */
 import type { Character } from "./themes";
 
@@ -23,6 +25,32 @@ const DECOR_IDS = [
   "sk-friends-row",
   "sk-brandbox"
 ];
+
+/** Per-character decor asset set. Absent characters get brand text only. */
+const DECOR_ASSETS: Record<
+  string,
+  { mascot: string; peek: string; brand: string; friends: string[]; peekFade?: string; peekZ?: number; mascotSize?: { w: number; h: number; left: number; bottom: number } }
+> = {
+  pudding: {
+    mascot: "mascot.gif",
+    mascotSize: { w: 140, h: 140, left: 70, bottom: 84 },
+    peek: "peek.png",
+    brand: "brandlogo.png",
+    friends: [...Array(15).keys()].map((i) => `friend-${i}.png`),
+    peekFade:
+      "-webkit-mask-image:linear-gradient(to bottom, black 0%, black 72%, transparent 100%);mask-image:linear-gradient(to bottom, black 0%, black 72%, transparent 100%);",
+    peekZ: 0
+  },
+  kitty: {
+    mascot: "kitty-mascot.gif",
+    mascotSize: { w: 190, h: 190, left: 46, bottom: 70 },
+    peek: "kitty-peek.png",
+    brand: "kitty-brandlogo.png",
+    friends: [...Array(12).keys()].map((i) => `kitty-friend-${i}.png`),
+    peekFade: "-webkit-mask-image:none;mask-image:none;",
+    peekZ: 40
+  }
+};
 
 /** Remove every decor element (and the friends row's children). */
 export function removeDecor(): void {
@@ -50,13 +78,14 @@ function add(id: string, style: string): void {
  */
 export function mountDecor(character: Character): void {
   removeDecor();
-  const isPud = character.id === "pudding";
+  const assets = DECOR_ASSETS[character.id];
   const bg = (url: string) => `url("${url}")`;
 
-  if (isPud) {
+  // Mascot (sidebar, above the settings icon).
+  if (assets !== undefined) {
     add(
       "sk-mascot",
-      `position:fixed;left:70px;bottom:84px;width:140px;height:140px;pointer-events:none;z-index:6;opacity:.96;background-image:${bg(decorAsset("mascot.gif"))};background-size:contain;background-position:center;background-repeat:no-repeat;`
+      `position:fixed;left:${assets.mascotSize?.left ?? 64}px;bottom:${assets.mascotSize?.bottom ?? 80}px;width:${assets.mascotSize?.w ?? 150}px;height:${assets.mascotSize?.h ?? 150}px;pointer-events:none;z-index:6;opacity:.95;border-radius:22px;background-image:${bg(decorAsset(assets.mascot))};background-size:contain;background-position:center bottom;background-repeat:no-repeat;`
     );
   }
 
@@ -66,10 +95,11 @@ export function mountDecor(character: Character): void {
   if (hdr !== null) hdr.style.position = "relative";
   const baseY = hdr !== null ? hdr.getBoundingClientRect().bottom : 78;
 
-  if (isPud) {
+  // Peek (bottom-right, head peeking out).
+  if (assets !== undefined) {
     add(
       "sk-peek",
-      `position:fixed;right:0;bottom:0;width:28vw;height:56vh;pointer-events:none;z-index:0;opacity:.92;background-image:${bg(decorAsset("peek.png"))};background-size:contain;background-position:right bottom;background-repeat:no-repeat;-webkit-mask-image:linear-gradient(to bottom, black 0%, black 42%, transparent 96%);mask-image:linear-gradient(to bottom, black 0%, black 42%, transparent 96%);`
+      `position:fixed;right:0;bottom:0;width:28vw;height:56vh;pointer-events:none;z-index:${assets.peekZ ?? 0};opacity:.92;background-image:${bg(decorAsset(assets.peek))};background-size:contain;background-position:right bottom;background-repeat:no-repeat;${assets.peekFade ?? ""}`
     );
   }
 
@@ -99,9 +129,8 @@ export function mountDecor(character: Character): void {
     "font-weight:700;font-size:44px;line-height:1;color:#7a5236;" +
     "letter-spacing:1px;text-shadow:0 2px 0 rgba(255,255,255,.45);white-space:nowrap;";
 
-  if (isPud) {
+  if (assets !== undefined) {
     // Friends row along the bottom edge of the header.
-    const friends = [...Array(15).keys()].map((i) => decorAsset(`friend-${i}.png`));
     let row = document.getElementById("sk-friends-row") as HTMLElement | null;
     if (row === null) {
       row = document.createElement("div");
@@ -110,15 +139,16 @@ export function mountDecor(character: Character): void {
     }
     row.style.cssText = `position:fixed;left:280px;right:60px;top:${baseY}px;height:0;pointer-events:none;z-index:1;`;
     row.querySelectorAll(".sk-f").forEach((el) => el.remove());
-    const xs = [4, 9, 15, 21, 27, 62, 68, 74, 80, 86, 12, 92, 6, 89, 33];
-    friends.forEach((url, i) => {
+    const n = assets.friends.length;
+    const xs = [18, 23, 28, 33, 38, 62, 66, 70, 74, 78, 82, 86];
+    assets.friends.forEach((name, i) => {
       const img = document.createElement("div");
       img.className = "sk-f";
       const x = xs[i % xs.length];
-      const h = 40 + ((i * 7) % 20);
+      const h = 32;
       img.style.cssText =
         `position:absolute;bottom:0;left:${x}%;height:${h}px;width:${h}px;` +
-        `background-image:url("${url}");background-size:contain;background-position:center bottom;background-repeat:no-repeat;opacity:.95;`;
+        `background-image:url("${decorAsset(name)}");background-size:contain;background-position:center bottom;background-repeat:no-repeat;opacity:.95;`;
       row!.appendChild(img);
     });
 
@@ -136,7 +166,7 @@ export function mountDecor(character: Character): void {
     brandBox.innerHTML = "";
     const icon = document.createElement("div");
     icon.style.cssText =
-      `height:38px;width:38px;flex:0 0 38px;background-image:url("${decorAsset("brandlogo.png")}");` +
+      `height:38px;width:38px;flex:0 0 38px;background-image:url("${decorAsset(assets.brand)}");` +
       "background-size:contain;background-position:center;background-repeat:no-repeat;";
     const text = document.createElement("span");
     text.style.cssText =

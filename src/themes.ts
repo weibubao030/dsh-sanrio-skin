@@ -90,7 +90,28 @@ const KITTY_LIGHT: Record<string, string> = {
   "--dsw-alias-state-success-primary": "#57b56b",
   "--dsw-specific-sidebar-fill": "#fdeff0",
   "--dsw-alias-scrollbar-bg-l1": "#e8b3bc",
-  "--dsw-alias-scrollbar-hover-l1": "#d98a97"
+  "--dsw-alias-scrollbar-hover-l1": "#d98a97",
+  "--dsw-alias-brand-primary-new-colorprimary-new-color": "#e63950",
+  "--dsw-alias-label-primary-bluish": "#5a2028",
+  "--dsw-alias-state-business-primary": "#e63950",
+  "--dsw-alias-state-business-tertiary": "#fde7ea",
+  "--dsw-alias-button-info-fill": "#e63950",
+  "--dsw-alias-button-info-hover": "#d11f38",
+  "--dsw-alias-interactive-bg-hover-accent": "#fce4e8",
+  "--dsw-specific-bubble": "#fdecf0",
+  "--dsw-specific-bubble-highlight": "#f9d9df",
+  "--dsw-specific-sidebar-nav-item-active-accent": "#fbdde3",
+  "--dsw-specific-sidebar-nav-item-active": "#fce9ed",
+  "--dsw-specific-sidebar-nav-item-hover": "#f9e3e7",
+  "--dsw-specific-tip": "#f9e8ec",
+  "--dsw-alias-markdown-citation": "#fbe4e8",
+  "--dsw-alias-markdown-inline-code": "#fbeaee",
+  "--dsw-alias-markdown-placeholder": "#fae6ea",
+  "--dsw-alias-markdown-tag": "#f9e3e7",
+  "--dsw-alias-toast-bg": "#5a2028",
+  "--dsw-alias-tooltip-bg": "#5a2028",
+  "--shiki-token-constant": "#c0392b",
+  "--shiki-token-link": "#c0564a"
 };
 
 const KITTY_DARK: Record<string, string> = {
@@ -116,7 +137,27 @@ const KITTY_DARK: Record<string, string> = {
   "--dsw-alias-state-success-primary": "#6fcf7f",
   "--dsw-specific-sidebar-fill": "#24181a",
   "--dsw-alias-scrollbar-bg-l1": "#6b3a42",
-  "--dsw-alias-scrollbar-hover-l1": "#8a4b55"
+  "--dsw-alias-scrollbar-hover-l1": "#8a4b55",
+  "--dsw-alias-brand-primary-new-colorprimary-new-color": "#ff6b81",
+  "--dsw-alias-state-business-primary": "#ff6b81",
+  "--dsw-alias-state-business-tertiary": "#4a2a30",
+  "--dsw-alias-button-info-fill": "#ff8f9e",
+  "--dsw-alias-button-info-hover": "#ffb3bd",
+  "--dsw-alias-interactive-bg-hover-accent": "#3a2226",
+  "--dsw-specific-bubble": "#2f1c20",
+  "--dsw-specific-bubble-highlight": "#4a2a30",
+  "--dsw-specific-sidebar-nav-item-active-accent": "#41242a",
+  "--dsw-specific-sidebar-nav-item-active": "#3a2226",
+  "--dsw-specific-sidebar-nav-item-hover": "#332024",
+  "--dsw-specific-tip": "#362226",
+  "--dsw-alias-markdown-citation": "#3b2428",
+  "--dsw-alias-markdown-inline-code": "#382226",
+  "--dsw-alias-markdown-placeholder": "#362226",
+  "--dsw-alias-markdown-tag": "#331f23",
+  "--dsw-alias-toast-bg": "#4a2a30",
+  "--dsw-alias-tooltip-bg": "#4a2a30",
+  "--shiki-token-constant": "#ff8f9e",
+  "--shiki-token-link": "#ffb3bd"
 };
 
 /* ================= Kuromi — aubergine / hot pink ================= */
