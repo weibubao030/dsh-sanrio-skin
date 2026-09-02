@@ -29,7 +29,7 @@ const DECOR_IDS = [
 /** Per-character decor asset set. Absent characters get brand text only. */
 const DECOR_ASSETS: Record<
   string,
-  { mascot: string; peek: string; brand: string; friends: string[]; peekFade?: string; peekZ?: number; mascotSize?: { w: number; h: number; left: number; bottom: number } }
+  { mascot: string; peek: string; brand: string; friends: string[]; peekFade?: string; peekZ?: number; mascotSize?: { w: number; h: number; left: number; bottom: number }; friendPositions?: number[]; friendSize?: number }
 > = {
   pudding: {
     mascot: "mascot.gif",
@@ -47,6 +47,17 @@ const DECOR_ASSETS: Record<
     peek: "kitty-peek.png",
     brand: "kitty-brandlogo.png",
     friends: [...Array(12).keys()].map((i) => `kitty-friend-${i}.png`),
+    peekFade: "-webkit-mask-image:none;mask-image:none;",
+    peekZ: 40
+  },
+  kuromi: {
+    mascot: "kuromi-mascot.gif",
+    mascotSize: { w: 160, h: 160, left: 58, bottom: 76 },
+    peek: "kuromi-peek.png",
+    brand: "kuromi-brandlogo.png",
+    friends: [...Array(11).keys()].map((i) => `kuromi-friend-${i}.png`),
+    friendPositions: [17, 22, 27, 32, 38, 62, 67, 72, 77, 82, 87],
+    friendSize: 36,
     peekFade: "-webkit-mask-image:none;mask-image:none;",
     peekZ: 40
   }
@@ -99,7 +110,7 @@ export function mountDecor(character: Character): void {
   if (assets !== undefined) {
     add(
       "sk-peek",
-      `position:fixed;right:0;bottom:0;width:28vw;height:56vh;pointer-events:none;z-index:${assets.peekZ ?? 0};opacity:.92;background-image:${bg(decorAsset(assets.peek))};background-size:contain;background-position:right bottom;background-repeat:no-repeat;${assets.peekFade ?? ""}`
+      `position:fixed;right:14px;bottom:0;width:28vw;height:56vh;pointer-events:none;z-index:${assets.peekZ ?? 0};opacity:.92;background-image:${bg(decorAsset(assets.peek))};background-size:contain;background-position:right bottom;background-repeat:no-repeat;${assets.peekFade ?? ""}`
     );
   }
 
@@ -140,12 +151,12 @@ export function mountDecor(character: Character): void {
     row.style.cssText = `position:fixed;left:280px;right:60px;top:${baseY}px;height:0;pointer-events:none;z-index:1;`;
     row.querySelectorAll(".sk-f").forEach((el) => el.remove());
     const n = assets.friends.length;
-    const xs = [18, 23, 28, 33, 38, 62, 66, 70, 74, 78, 82, 86];
+    const xs = assets.friendPositions ?? [18, 23, 28, 33, 38, 62, 66, 70, 74, 78, 82, 86];
     assets.friends.forEach((name, i) => {
       const img = document.createElement("div");
       img.className = "sk-f";
       const x = xs[i % xs.length];
-      const h = 32;
+      const h = assets.friendSize ?? 32;
       img.style.cssText =
         `position:absolute;bottom:0;left:${x}%;height:${h}px;width:${h}px;` +
         `background-image:url("${decorAsset(name)}");background-size:contain;background-position:center bottom;background-repeat:no-repeat;opacity:.95;`;

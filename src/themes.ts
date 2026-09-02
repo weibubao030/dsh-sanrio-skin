@@ -182,7 +182,28 @@ const KUROMI_LIGHT: Record<string, string> = {
   "--dsw-alias-button-primary-hover": "#a63669",
   "--dsw-specific-sidebar-fill": "#f2edf6",
   "--dsw-alias-scrollbar-bg-l1": "#d78cc0",
-  "--dsw-alias-scrollbar-hover-l1": "#c063a6"
+  "--dsw-alias-scrollbar-hover-l1": "#c063a6",
+  "--dsw-alias-brand-primary-new-colorprimary-new-color": "#c2447f",
+  "--dsw-alias-label-primary-bluish": "#5a2a44",
+  "--dsw-alias-state-business-primary": "#c2447f",
+  "--dsw-alias-state-business-tertiary": "#f7e5f0",
+  "--dsw-alias-button-info-fill": "#c2447f",
+  "--dsw-alias-button-info-hover": "#a63669",
+  "--dsw-alias-interactive-bg-hover-accent": "#f6e0ee",
+  "--dsw-specific-bubble": "#f9e7f2",
+  "--dsw-specific-bubble-highlight": "#efd0e5",
+  "--dsw-specific-sidebar-nav-item-active-accent": "#f4d9ea",
+  "--dsw-specific-sidebar-nav-item-active": "#f8e5f1",
+  "--dsw-specific-sidebar-nav-item-hover": "#f6e0ee",
+  "--dsw-specific-tip": "#f5e3ee",
+  "--dsw-alias-markdown-citation": "#f5dcea",
+  "--dsw-alias-markdown-inline-code": "#f7e4ef",
+  "--dsw-alias-markdown-placeholder": "#f6e0ed",
+  "--dsw-alias-markdown-tag": "#f5e3ee",
+  "--dsw-alias-toast-bg": "#4a2440",
+  "--dsw-alias-tooltip-bg": "#4a2440",
+  "--shiki-token-constant": "#b8306f",
+  "--shiki-token-link": "#a93a66"
 };
 
 const KUROMI_DARK: Record<string, string> = {
@@ -206,7 +227,27 @@ const KUROMI_DARK: Record<string, string> = {
   "--dsw-alias-state-error-primary": "#f08cc4",
   "--dsw-specific-sidebar-fill": "#1b1722",
   "--dsw-alias-scrollbar-bg-l1": "#7a4a67",
-  "--dsw-alias-scrollbar-hover-l1": "#9a5c84"
+  "--dsw-alias-scrollbar-hover-l1": "#9a5c84",
+  "--dsw-alias-brand-primary-new-colorprimary-new-color": "#e96fb1",
+  "--dsw-alias-state-business-primary": "#e96fb1",
+  "--dsw-alias-state-business-tertiary": "#3a2233",
+  "--dsw-alias-button-info-fill": "#e96fb1",
+  "--dsw-alias-button-info-hover": "#f08cc4",
+  "--dsw-alias-interactive-bg-hover-accent": "#3a2440",
+  "--dsw-specific-bubble": "#2a1c28",
+  "--dsw-specific-bubble-highlight": "#3f2a3a",
+  "--dsw-specific-sidebar-nav-item-active-accent": "#372233",
+  "--dsw-specific-sidebar-nav-item-active": "#2c1e2a",
+  "--dsw-specific-sidebar-nav-item-hover": "#271c24",
+  "--dsw-specific-tip": "#2a1e28",
+  "--dsw-alias-markdown-citation": "#33232f",
+  "--dsw-alias-markdown-inline-code": "#30222c",
+  "--dsw-alias-markdown-placeholder": "#2f222a",
+  "--dsw-alias-markdown-tag": "#2c1f27",
+  "--dsw-alias-toast-bg": "#3a2233",
+  "--dsw-alias-tooltip-bg": "#3a2233",
+  "--shiki-token-constant": "#ff8cc4",
+  "--shiki-token-link": "#ffb0d8"
 };
 
 /* ================= Cinnamoroll — cream / baby blue ================= */
