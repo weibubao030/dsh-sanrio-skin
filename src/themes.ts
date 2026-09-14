@@ -272,7 +272,28 @@ const CINNA_LIGHT: Record<string, string> = {
   "--dsw-alias-button-primary-hover": "#5fb0dd",
   "--dsw-specific-sidebar-fill": "#f3f8fb",
   "--dsw-alias-scrollbar-bg-l1": "#b5d9ed",
-  "--dsw-alias-scrollbar-hover-l1": "#8fc1e0"
+  "--dsw-alias-scrollbar-hover-l1": "#8fc1e0",
+  "--dsw-alias-brand-primary-new-colorprimary-new-color": "#7fc2e6",
+  "--dsw-alias-label-primary-bluish": "#2a4a5c",
+  "--dsw-alias-state-business-primary": "#7fc2e6",
+  "--dsw-alias-state-business-tertiary": "#e6f4fb",
+  "--dsw-alias-button-info-fill": "#7fc2e6",
+  "--dsw-alias-button-info-hover": "#5fb0dd",
+  "--dsw-alias-interactive-bg-hover-accent": "#e3f2fa",
+  "--dsw-specific-bubble": "#eaf6fc",
+  "--dsw-specific-bubble-highlight": "#d3eaf7",
+  "--dsw-specific-sidebar-nav-item-active-accent": "#dceff9",
+  "--dsw-specific-sidebar-nav-item-active": "#e8f4fb",
+  "--dsw-specific-sidebar-nav-item-hover": "#e6f3fa",
+  "--dsw-specific-tip": "#e4f1f9",
+  "--dsw-alias-markdown-citation": "#def0f9",
+  "--dsw-alias-markdown-inline-code": "#e6f4fb",
+  "--dsw-alias-markdown-placeholder": "#e2f1f9",
+  "--dsw-alias-markdown-tag": "#e4f2fa",
+  "--dsw-alias-toast-bg": "#24485c",
+  "--dsw-alias-tooltip-bg": "#24485c",
+  "--shiki-token-constant": "#3a8fc0",
+  "--shiki-token-link": "#2f7ba8"
 };
 
 const CINNA_DARK: Record<string, string> = {
@@ -295,7 +316,27 @@ const CINNA_DARK: Record<string, string> = {
   "--dsw-alias-button-primary-hover": "#a6ddf7",
   "--dsw-specific-sidebar-fill": "#202931",
   "--dsw-alias-scrollbar-bg-l1": "#3d5b6e",
-  "--dsw-alias-scrollbar-hover-l1": "#517b93"
+  "--dsw-alias-scrollbar-hover-l1": "#517b93",
+  "--dsw-alias-brand-primary-new-colorprimary-new-color": "#8fd0f0",
+  "--dsw-alias-state-business-primary": "#8fd0f0",
+  "--dsw-alias-state-business-tertiary": "#22343f",
+  "--dsw-alias-button-info-fill": "#8fd0f0",
+  "--dsw-alias-button-info-hover": "#a6ddf7",
+  "--dsw-alias-interactive-bg-hover-accent": "#26343d",
+  "--dsw-specific-bubble": "#1f2b33",
+  "--dsw-specific-bubble-highlight": "#2c3f4b",
+  "--dsw-specific-sidebar-nav-item-active-accent": "#263a45",
+  "--dsw-specific-sidebar-nav-item-active": "#22323c",
+  "--dsw-specific-sidebar-nav-item-hover": "#203038",
+  "--dsw-specific-tip": "#21313a",
+  "--dsw-alias-markdown-citation": "#243642",
+  "--dsw-alias-markdown-inline-code": "#22333d",
+  "--dsw-alias-markdown-placeholder": "#21323b",
+  "--dsw-alias-markdown-tag": "#1f2e37",
+  "--dsw-alias-toast-bg": "#22343f",
+  "--dsw-alias-tooltip-bg": "#22343f",
+  "--shiki-token-constant": "#8fd0f0",
+  "--shiki-token-link": "#a6ddf7"
 };
 
 /* ================= My Melody — pastel pink ================= */

@@ -29,7 +29,7 @@ const DECOR_IDS = [
 /** Per-character decor asset set. Absent characters get brand text only. */
 const DECOR_ASSETS: Record<
   string,
-  { mascot: string; peek: string; brand: string; friends: string[]; peekFade?: string; peekZ?: number; mascotSize?: { w: number; h: number; left: number; bottom: number }; friendPositions?: number[]; friendSize?: number }
+  { mascot: string; peek: string; brand: string; friends: string[]; peekFade?: string; peekZ?: number; mascotSize?: { w: number; h: number; left: number; bottom: number }; friendPositions?: number[]; friendSize?: number; friendBoxW?: number; friendDrop?: number }
 > = {
   pudding: {
     mascot: "mascot.gif",
@@ -58,6 +58,19 @@ const DECOR_ASSETS: Record<
     friends: [...Array(11).keys()].map((i) => `kuromi-friend-${i}.png`),
     friendPositions: [17, 22, 27, 32, 38, 62, 67, 72, 77, 82, 87],
     friendSize: 36,
+    peekFade: "-webkit-mask-image:none;mask-image:none;",
+    peekZ: 40
+  },
+  cinna: {
+    mascot: "cinna-mascot.png",
+    mascotSize: { w: 165, h: 165, left: 56, bottom: 76 },
+    peek: "cinna-peek.png",
+    brand: "cinna-brandlogo.png",
+    friends: [0, 7, 1, 8, 2, 9, 3, 4, 5, 6].map((i) => `cinna-friend-${i}.png`),
+    friendPositions: [12, 18, 24, 30, 36, 62, 68, 74, 80, 86],
+    friendSize: 34,
+    friendBoxW: 2,
+    friendDrop: -5,
     peekFade: "-webkit-mask-image:none;mask-image:none;",
     peekZ: 40
   }
@@ -148,7 +161,7 @@ export function mountDecor(character: Character): void {
       row.id = "sk-friends-row";
       document.body.appendChild(row);
     }
-    row.style.cssText = `position:fixed;left:280px;right:60px;top:${baseY}px;height:0;pointer-events:none;z-index:1;`;
+    row.style.cssText = `position:fixed;left:280px;right:60px;top:${baseY + (assets.friendDrop ?? 0)}px;height:0;pointer-events:none;z-index:1;`;
     row.querySelectorAll(".sk-f").forEach((el) => el.remove());
     const n = assets.friends.length;
     const xs = assets.friendPositions ?? [18, 23, 28, 33, 38, 62, 66, 70, 74, 78, 82, 86];
@@ -157,8 +170,9 @@ export function mountDecor(character: Character): void {
       img.className = "sk-f";
       const x = xs[i % xs.length];
       const h = assets.friendSize ?? 32;
+      const bw = h * (assets.friendBoxW ?? 1);
       img.style.cssText =
-        `position:absolute;bottom:0;left:${x}%;height:${h}px;width:${h}px;` +
+        `position:absolute;bottom:0;left:calc(${x}% - ${(bw - h) / 2}px);height:${h}px;width:${bw}px;` +
         `background-image:url("${decorAsset(name)}");background-size:contain;background-position:center bottom;background-repeat:no-repeat;opacity:.95;`;
       row!.appendChild(img);
     });
