@@ -1,0 +1,434 @@
+window.__ModuleLoader__.load({
+  id: 'dsh-sanrio-skin',
+  factory(require) {
+    const React = require('react')
+    const PACKAGE = 'dsh-sanrio-skin'
+    const ASSET_ROOT = '/sanrio-skin-assets/'
+    const characters = [
+      { id: 'pudding', image: 'pudding/mascot.gif', brand: 'pudding/brand.png', peek: 'pudding/peek.png', friends: Array.from({ length: 15 }, (_, i) => `pudding/friends/${String(i).padStart(2, '0')}.png`) },
+      { id: 'kitty', image: 'hello-kitty/mascot.gif', brand: 'hello-kitty/brand.png', peek: 'hello-kitty/peek.png', friends: Array.from({ length: 12 }, (_, i) => `hello-kitty/friends/${String(i).padStart(2, '0')}.png`) },
+      { id: 'kuromi', image: 'kuromi/mascot.gif', brand: 'kuromi/brand.png', peek: 'kuromi/peek.png', friends: Array.from({ length: 11 }, (_, i) => `kuromi/friends/${String(i).padStart(2, '0')}.png`) },
+      { id: 'cinna', image: 'cinnamoroll/mascot.png', brand: 'cinnamoroll/brand.png', peek: 'cinnamoroll/peek.png', friends: [0, 7, 1, 8, 2, 9, 3, 4, 5, 6].map(i => `cinnamoroll/friends/${String(i).padStart(2, '0')}.png`) },
+    ]
+    // Every character covers the same DSH token set in both light and dark modes.
+    // Light surfaces stay quiet; character colors carry actions and selected states.
+    const palettes = {
+      pudding: {
+        '--dsw-alias-brand-primary': { light: '#85534a', dark: '#e7bf83' },
+        '--dsw-alias-brand-text': { light: '#fffaf3', dark: '#2b2421' },
+        '--dsw-alias-bg-base': { light: '#fcf9f2', dark: '#1c1b1c' },
+        '--dsw-alias-bg-layer-1': { light: '#fffcf7', dark: '#252325' },
+        '--dsw-alias-bg-layer-2': { light: '#f6efe3', dark: '#2d2a2b' },
+        '--dsw-alias-bg-layer-3': { light: '#efe5d5', dark: '#363132' },
+        '--dsw-alias-bg-overlay': { light: '#fffdf9', dark: '#3a3434' },
+        '--dsw-alias-label-primary': { light: '#403631', dark: '#f4ede3' },
+        '--dsw-alias-label-secondary': { light: '#776a61', dark: '#c2b7ac' },
+        '--dsw-alias-label-tertiary': { light: '#9f9183', dark: '#9c9087' },
+        '--dsw-alias-border-l1': { light: '#e8dfd2', dark: '#413b3b' },
+        '--dsw-alias-border-l2': { light: '#dacbbb', dark: '#574d4a' },
+        '--dsw-alias-interactive-bg-hover': { light: '#f5ead9', dark: '#342f2e' },
+        '--dsw-alias-interactive-bg-active': { light: '#eddbc2', dark: '#463a35' },
+        '--dsw-alias-interactive-bg-hover-solid': { light: '#f2e5d1', dark: '#393332' },
+        '--dsw-alias-button-primary-fill': { light: '#85534a', dark: '#e7bf83' },
+        '--dsw-alias-button-primary-hover': { light: '#70433c', dark: '#f1cf99' },
+        '--dsw-alias-state-error-primary': { light: '#cf5b45', dark: '#e08463' },
+        '--dsw-alias-state-warn-primary': { light: '#c6914c', dark: '#d9ad70' },
+        '--dsw-alias-state-success-primary': { light: '#74b06a', dark: '#7bbf75' },
+        '--dsw-specific-sidebar-fill': { light: '#f6f0e7', dark: '#252325' },
+        '--dsw-alias-scrollbar-bg-l1': { light: '#d8b998', dark: '#5e5552' },
+        '--dsw-alias-scrollbar-hover-l1': { light: '#bc9874', dark: '#786c66' },
+        '--dsw-alias-brand-primary-new-colorprimary-new-color': { light: '#85534a', dark: '#e7bf83' },
+        '--dsw-alias-state-business-primary': { light: '#85534a', dark: '#e7bf83' },
+        '--dsw-alias-state-business-tertiary': { light: '#f2e6d7', dark: '#453832' },
+        '--dsw-alias-button-info-fill': { light: '#85534a', dark: '#e7bf83' },
+        '--dsw-alias-button-info-hover': { light: '#70433c', dark: '#f1cf99' },
+        '--dsw-alias-interactive-bg-hover-accent': { light: '#edddc9', dark: '#463a35' },
+        '--dsw-specific-bubble': { light: '#f8efe1', dark: '#292627' },
+        '--dsw-specific-bubble-highlight': { light: '#f0dec3', dark: '#39302e' },
+        '--dsw-specific-sidebar-nav-item-active-accent': { light: '#eee1cd', dark: '#493830' },
+        '--dsw-specific-sidebar-nav-item-active': { light: '#f2e8d8', dark: '#393130' },
+        '--dsw-specific-sidebar-nav-item-hover': { light: '#f6eddf', dark: '#302b2b' },
+        '--dsw-specific-tip': { light: '#f3e9da', dark: '#332e2d' },
+        '--dsw-alias-link': { light: '#85534a', dark: '#e7bf83' },
+        '--dsw-alias-markdown-citation': { light: '#f3e6d6', dark: '#342e2c' },
+        '--dsw-alias-markdown-inline-code': { light: '#f3e9dc', dark: '#332e2d' },
+        '--dsw-alias-markdown-placeholder': { light: '#f5ecdf', dark: '#302c2c' },
+        '--dsw-alias-markdown-tag': { light: '#f4e9da', dark: '#302c2c' },
+        '--dsw-alias-toast-bg': { light: '#55413a', dark: '#3a3130' },
+        '--dsw-alias-tooltip-bg': { light: '#55413a', dark: '#3a3130' },
+        '--shiki-token-constant': { light: '#85534a', dark: '#e7bf83' },
+        '--shiki-token-link': { light: '#9a6151', dark: '#f1cf99' },
+      },
+      kitty: {
+        '--dsw-alias-brand-primary': { light: '#b74651', dark: '#ed929a' },
+        '--dsw-alias-brand-text': { light: '#fffaf9', dark: '#291f23' },
+        '--dsw-alias-bg-base': { light: '#fcf9f8', dark: '#1d1b1d' },
+        '--dsw-alias-bg-layer-1': { light: '#fffdfc', dark: '#262326' },
+        '--dsw-alias-bg-layer-2': { light: '#f7eff0', dark: '#2e292d' },
+        '--dsw-alias-bg-layer-3': { light: '#f2e4e6', dark: '#393035' },
+        '--dsw-alias-bg-overlay': { light: '#fffafa', dark: '#3b3337' },
+        '--dsw-alias-label-primary': { light: '#3e3437', dark: '#f4ecee' },
+        '--dsw-alias-label-secondary': { light: '#74696d', dark: '#c5b7ba' },
+        '--dsw-alias-label-tertiary': { light: '#9f9296', dark: '#a49398' },
+        '--dsw-alias-border-l1': { light: '#e7dcde', dark: '#42383d' },
+        '--dsw-alias-border-l2': { light: '#d9c9cd', dark: '#56474d' },
+        '--dsw-alias-interactive-bg-hover': { light: '#f5e9ec', dark: '#342b30' },
+        '--dsw-alias-interactive-bg-active': { light: '#ecd6dc', dark: '#49363e' },
+        '--dsw-alias-interactive-bg-hover-solid': { light: '#f1e1e5', dark: '#3d3137' },
+        '--dsw-alias-button-primary-fill': { light: '#b74651', dark: '#ed929a' },
+        '--dsw-alias-button-primary-hover': { light: '#9f3543', dark: '#f4a7ae' },
+        '--dsw-alias-state-error-primary': { light: '#bf4c54', dark: '#ed848a' },
+        '--dsw-alias-state-warn-primary': { light: '#ba884e', dark: '#d4ab77' },
+        '--dsw-alias-state-success-primary': { light: '#628f74', dark: '#8cb99b' },
+        '--dsw-specific-sidebar-fill': { light: '#f1e8ea', dark: '#272428' },
+        '--dsw-alias-scrollbar-bg-l1': { light: '#cfb1b7', dark: '#62565b' },
+        '--dsw-alias-scrollbar-hover-l1': { light: '#bb919a', dark: '#7b666d' },
+        '--dsw-alias-brand-primary-new-colorprimary-new-color': { light: '#b74651', dark: '#ed929a' },
+        '--dsw-alias-state-business-primary': { light: '#b74651', dark: '#ed929a' },
+        '--dsw-alias-state-business-tertiary': { light: '#f2dfe3', dark: '#4b343d' },
+        '--dsw-alias-button-info-fill': { light: '#b74651', dark: '#ed929a' },
+        '--dsw-alias-button-info-hover': { light: '#9f3543', dark: '#f4a7ae' },
+        '--dsw-alias-interactive-bg-hover-accent': { light: '#f1dfe3', dark: '#433039' },
+        '--dsw-specific-bubble': { light: '#f7edef', dark: '#2c272b' },
+        '--dsw-specific-bubble-highlight': { light: '#efdee2', dark: '#3b3035' },
+        '--dsw-specific-sidebar-nav-item-active-accent': { light: '#ead4d9', dark: '#483238' },
+        '--dsw-specific-sidebar-nav-item-active': { light: '#f0e3e6', dark: '#382c32' },
+        '--dsw-specific-sidebar-nav-item-hover': { light: '#f5eaed', dark: '#30282c' },
+        '--dsw-specific-tip': { light: '#f2e6e8', dark: '#32292d' },
+        '--dsw-alias-link': { light: '#9e3545', dark: '#f2a1aa' },
+        '--dsw-alias-markdown-citation': { light: '#f2e2e6', dark: '#3b3035' },
+        '--dsw-alias-markdown-inline-code': { light: '#f3e8ea', dark: '#332b2f' },
+        '--dsw-alias-markdown-placeholder': { light: '#f4ebec', dark: '#30292d' },
+        '--dsw-alias-markdown-tag': { light: '#f1e4e7', dark: '#32292e' },
+        '--dsw-alias-toast-bg': { light: '#4b343b', dark: '#40343a' },
+        '--dsw-alias-tooltip-bg': { light: '#4b343b', dark: '#40343a' },
+        '--shiki-token-constant': { light: '#a84049', dark: '#ef9299' },
+        '--shiki-token-link': { light: '#b05059', dark: '#f2adb1' },
+      },
+      kuromi: {
+        '--dsw-alias-brand-primary': { light: '#805b88', dark: '#d3a5d2' },
+        '--dsw-alias-brand-text': { light: '#fffafc', dark: '#261f29' },
+        '--dsw-alias-bg-base': { light: '#faf9fb', dark: '#1d1b21' },
+        '--dsw-alias-bg-layer-1': { light: '#fffefd', dark: '#26232b' },
+        '--dsw-alias-bg-layer-2': { light: '#f4f0f5', dark: '#302b35' },
+        '--dsw-alias-bg-layer-3': { light: '#eae3ed', dark: '#3a333f' },
+        '--dsw-alias-bg-overlay': { light: '#fcfafc', dark: '#403844' },
+        '--dsw-alias-label-primary': { light: '#342e39', dark: '#f3eef5' },
+        '--dsw-alias-label-secondary': { light: '#736a7c', dark: '#c4b8c9' },
+        '--dsw-alias-label-tertiary': { light: '#96899e', dark: '#a493ad' },
+        '--dsw-alias-border-l1': { light: '#e4dfe7', dark: '#403844' },
+        '--dsw-alias-border-l2': { light: '#d4c9d9', dark: '#594e60' },
+        '--dsw-alias-interactive-bg-hover': { light: '#f0e8f2', dark: '#342b39' },
+        '--dsw-alias-interactive-bg-active': { light: '#e5d6e9', dark: '#47374c' },
+        '--dsw-alias-interactive-bg-hover-solid': { light: '#eadeee', dark: '#3d3043' },
+        '--dsw-alias-button-primary-fill': { light: '#805b88', dark: '#d3a5d2' },
+        '--dsw-alias-button-primary-hover': { light: '#6f4a79', dark: '#e2b8df' },
+        '--dsw-alias-state-error-primary': { light: '#b95d79', dark: '#e392a8' },
+        '--dsw-alias-state-warn-primary': { light: '#b58b57', dark: '#d8b77c' },
+        '--dsw-alias-state-success-primary': { light: '#67927f', dark: '#8fc1a7' },
+        '--dsw-specific-sidebar-fill': { light: '#efedf3', dark: '#28252e' },
+        '--dsw-alias-scrollbar-bg-l1': { light: '#c3b2c9', dark: '#66586d' },
+        '--dsw-alias-scrollbar-hover-l1': { light: '#a991b4', dark: '#83718b' },
+        '--dsw-alias-brand-primary-new-colorprimary-new-color': { light: '#805b88', dark: '#d3a5d2' },
+        '--dsw-alias-state-business-primary': { light: '#805b88', dark: '#d3a5d2' },
+        '--dsw-alias-state-business-tertiary': { light: '#eadceb', dark: '#47384b' },
+        '--dsw-alias-button-info-fill': { light: '#805b88', dark: '#d3a5d2' },
+        '--dsw-alias-button-info-hover': { light: '#6f4a79', dark: '#e2b8df' },
+        '--dsw-alias-interactive-bg-hover-accent': { light: '#eaddeb', dark: '#423549' },
+        '--dsw-specific-bubble': { light: '#f1e9f3', dark: '#2d2732' },
+        '--dsw-specific-bubble-highlight': { light: '#e5d6e9', dark: '#413447' },
+        '--dsw-specific-sidebar-nav-item-active-accent': { light: '#e7dbe9', dark: '#47384d' },
+        '--dsw-specific-sidebar-nav-item-active': { light: '#eee5f0', dark: '#39303d' },
+        '--dsw-specific-sidebar-nav-item-hover': { light: '#f3edf5', dark: '#322b37' },
+        '--dsw-specific-tip': { light: '#f0eaf2', dark: '#332c38' },
+        '--dsw-alias-link': { light: '#755382', dark: '#dfb6df' },
+        '--dsw-alias-markdown-citation': { light: '#eee3ef', dark: '#3a3040' },
+        '--dsw-alias-markdown-inline-code': { light: '#f1eaf2', dark: '#342d39' },
+        '--dsw-alias-markdown-placeholder': { light: '#efe7f1', dark: '#312a35' },
+        '--dsw-alias-markdown-tag': { light: '#eee5f0', dark: '#322a37' },
+        '--dsw-alias-toast-bg': { light: '#453b4c', dark: '#3d3543' },
+        '--dsw-alias-tooltip-bg': { light: '#453b4c', dark: '#3d3543' },
+        '--shiki-token-constant': { light: '#875587', dark: '#dba9d7' },
+        '--shiki-token-link': { light: '#9c6a99', dark: '#ecc4e7' },
+      },
+      cinna: {
+        '--dsw-alias-brand-primary': { light: '#34789f', dark: '#9bcde5' },
+        '--dsw-alias-brand-text': { light: '#fafdff', dark: '#1e313b' },
+        '--dsw-alias-bg-base': { light: '#f8fbfc', dark: '#1c2025' },
+        '--dsw-alias-bg-layer-1': { light: '#fffefd', dark: '#252c33' },
+        '--dsw-alias-bg-layer-2': { light: '#f1f7f9', dark: '#2d363e' },
+        '--dsw-alias-bg-layer-3': { light: '#e6f0f4', dark: '#36414a' },
+        '--dsw-alias-bg-overlay': { light: '#fbfdfe', dark: '#3b4852' },
+        '--dsw-alias-label-primary': { light: '#344853', dark: '#eaf1f4' },
+        '--dsw-alias-label-secondary': { light: '#6f8490', dark: '#bdcbd2' },
+        '--dsw-alias-label-tertiary': { light: '#98aab3', dark: '#94a8b2' },
+        '--dsw-alias-border-l1': { light: '#dce9ed', dark: '#3c4850' },
+        '--dsw-alias-border-l2': { light: '#c9dbe2', dark: '#52606b' },
+        '--dsw-alias-interactive-bg-hover': { light: '#e8f3f7', dark: '#303b43' },
+        '--dsw-alias-interactive-bg-active': { light: '#d7e9f0', dark: '#3a4e5a' },
+        '--dsw-alias-interactive-bg-hover-solid': { light: '#e0eef3', dark: '#35434c' },
+        '--dsw-alias-button-primary-fill': { light: '#34789f', dark: '#9bcde5' },
+        '--dsw-alias-button-primary-hover': { light: '#27698f', dark: '#b4ddef' },
+        '--dsw-alias-state-error-primary': { light: '#bf6872', dark: '#e9949c' },
+        '--dsw-alias-state-warn-primary': { light: '#aa8752', dark: '#d8b77e' },
+        '--dsw-alias-state-success-primary': { light: '#5b9889', dark: '#87c4b1' },
+        '--dsw-specific-sidebar-fill': { light: '#eaf3f6', dark: '#242b32' },
+        '--dsw-alias-scrollbar-bg-l1': { light: '#abcad6', dark: '#526875' },
+        '--dsw-alias-scrollbar-hover-l1': { light: '#8fb6c7', dark: '#6e8796' },
+        '--dsw-alias-brand-primary-new-colorprimary-new-color': { light: '#34789f', dark: '#9bcde5' },
+        '--dsw-alias-state-business-primary': { light: '#34789f', dark: '#9bcde5' },
+        '--dsw-alias-state-business-tertiary': { light: '#e4f1f6', dark: '#2e4653' },
+        '--dsw-alias-button-info-fill': { light: '#34789f', dark: '#9bcde5' },
+        '--dsw-alias-button-info-hover': { light: '#27698f', dark: '#b4ddef' },
+        '--dsw-alias-interactive-bg-hover-accent': { light: '#deedf2', dark: '#354b57' },
+        '--dsw-specific-bubble': { light: '#eff6f8', dark: '#29333b' },
+        '--dsw-specific-bubble-highlight': { light: '#ddebf1', dark: '#354853' },
+        '--dsw-specific-sidebar-nav-item-active-accent': { light: '#d9eaf1', dark: '#354a56' },
+        '--dsw-specific-sidebar-nav-item-active': { light: '#e4f0f4', dark: '#2e3d46' },
+        '--dsw-specific-sidebar-nav-item-hover': { light: '#e6f1f5', dark: '#2b363e' },
+        '--dsw-specific-tip': { light: '#e8f2f5', dark: '#2e3941' },
+        '--dsw-alias-link': { light: '#2f7199', dark: '#add9ef' },
+        '--dsw-alias-markdown-citation': { light: '#e5f1f5', dark: '#31414b' },
+        '--dsw-alias-markdown-inline-code': { light: '#edf4f6', dark: '#303a42' },
+        '--dsw-alias-markdown-placeholder': { light: '#ebf3f6', dark: '#2d3941' },
+        '--dsw-alias-markdown-tag': { light: '#e7f1f4', dark: '#2b363f' },
+        '--dsw-alias-toast-bg': { light: '#304a59', dark: '#344650' },
+        '--dsw-alias-tooltip-bg': { light: '#304a59', dark: '#344650' },
+        '--shiki-token-constant': { light: '#34789f', dark: '#a4d4e9' },
+        '--shiki-token-link': { light: '#2f7199', dark: '#b4ddef' },
+      },
+    }
+    const copy = {
+      zh: {
+        title: '选择皮肤',
+        hint: '选择角色后保存。浅色、深色和跟随系统继续使用 DSH 的外观设置。',
+        save: '保存皮肤',
+        saving: '保存中…',
+        saved: '已保存',
+        failed: '保存失败，请重试。',
+        unavailable: '插件设置暂时不可用。',
+        pudding: '布丁狗', kitty: 'Hello Kitty', kuromi: '酷洛米', cinna: '玉桂狗',
+      },
+      en: {
+        title: 'Choose a skin',
+        hint: 'Choose a character and save. DSH Appearance still controls light, dark, and system modes.',
+        save: 'Save skin',
+        saving: 'Saving…',
+        saved: 'Saved',
+        failed: 'Could not save. Please try again.',
+        unavailable: 'Plugin settings are unavailable.',
+        pudding: 'Pompompurin', kitty: 'Hello Kitty', kuromi: 'Kuromi', cinna: 'Cinnamoroll',
+      },
+    }
+
+    function selectedCharacter(form) {
+      const id = form.getSnapshot().value?.character
+      return Object.hasOwn(palettes, id) ? id : 'pudding'
+    }
+
+    function apply(ctx) {
+      const form = ctx.configForms.get(PACKAGE)
+      const subscribe = listener => form.subscribe(listener)
+      const getSnapshot = () => form.getSnapshot()
+      ctx.effect(() => ctx.locale.register('sanrioSkin', copy), 'dsh-sanrio-skin: locale')
+
+      ctx.effect(() => {
+        let current = selectedCharacter(form)
+        let removeOverride = ctx.theme.overrideTokens(PACKAGE, palettes[current])
+        const unsubscribe = form.subscribe(() => {
+          const next = selectedCharacter(form)
+          if (next === current) return
+          current = next
+          removeOverride = ctx.theme.overrideTokens(PACKAGE, palettes[next])
+        })
+        return () => { unsubscribe(); removeOverride() }
+      }, 'dsh-sanrio-skin: colors')
+
+      function Mascot() {
+        const snapshot = React.useSyncExternalStore(subscribe, getSnapshot)
+        const character = characters.find(item => item.id === snapshot.value?.character) ?? characters[0]
+        return React.createElement('img', {
+          src: ASSET_ROOT + character.image,
+          alt: '',
+          'aria-hidden': true,
+          draggable: false,
+          style: {
+            position: 'absolute',
+            left: '32px',
+            bottom: '56px',
+            width: 'min(120px, 15vw)',
+            height: 'auto',
+            pointerEvents: 'none',
+            userSelect: 'none',
+          },
+        })
+      }
+
+      function BrandMark({ size, className }) {
+        const snapshot = React.useSyncExternalStore(subscribe, getSnapshot)
+        const character = characters.find(item => item.id === snapshot.value?.character) ?? characters[0]
+        return React.createElement('img', {
+          src: ASSET_ROOT + character.brand, alt: '', 'aria-hidden': true, draggable: false, className,
+          style: { display: 'block', width: size, height: size, objectFit: 'contain' },
+        })
+      }
+
+      function PeekOverlay() {
+        const snapshot = React.useSyncExternalStore(subscribe, getSnapshot)
+        const character = characters.find(item => item.id === snapshot.value?.character) ?? characters[0]
+        return React.createElement('div', {
+          'aria-hidden': true,
+          style: {
+            position: 'relative', width: '100%', height: 0,
+            pointerEvents: 'none', userSelect: 'none',
+          },
+        }, React.createElement('img', {
+          src: ASSET_ROOT + character.peek, alt: '', draggable: false,
+          style: {
+            position: 'absolute', right: 0, bottom: 0,
+            width: 'min(220px, 35vw)', height: 148,
+            objectFit: 'contain', objectPosition: 'right bottom', opacity: 0.3,
+          },
+        }))
+      }
+
+      function FriendsStrip() {
+        const snapshot = React.useSyncExternalStore(subscribe, getSnapshot)
+        const character = characters.find(item => item.id === snapshot.value?.character) ?? characters[0]
+        const strip = React.useRef(null)
+        const [position, setPosition] = React.useState(null)
+
+        React.useLayoutEffect(() => {
+          const node = strip.current
+          const header = node?.closest('header')
+          const anchor = node?.offsetParent
+          if (!node || !header || !anchor) return
+
+          const update = () => {
+            const headerBox = header.getBoundingClientRect()
+            const anchorBox = anchor.getBoundingClientRect()
+            const next = {
+              top: headerBox.bottom - anchorBox.top,
+              left: headerBox.left - anchorBox.left,
+              width: headerBox.width,
+            }
+            setPosition(previous => previous &&
+              previous.top === next.top && previous.left === next.left && previous.width === next.width
+              ? previous : next)
+          }
+          const observer = new ResizeObserver(update)
+          observer.observe(header)
+          observer.observe(anchor)
+          window.addEventListener('resize', update)
+          update()
+          return () => {
+            observer.disconnect()
+            window.removeEventListener('resize', update)
+          }
+        }, [])
+
+        return React.createElement('div', {
+          ref: strip,
+          'aria-hidden': true,
+          style: {
+            position: 'absolute',
+            top: position?.top ?? 0,
+            left: position?.left ?? 0,
+            width: position?.width ?? 0,
+            height: 0,
+            visibility: position ? 'visible' : 'hidden',
+            pointerEvents: 'none',
+            userSelect: 'none',
+            zIndex: 2,
+          },
+        }, React.createElement('div', {
+          style: {
+            position: 'absolute', left: 'min(190px, 36%)', right: '4%', bottom: 0,
+            display: 'flex', alignItems: 'end', justifyContent: 'space-between',
+            gap: 2, height: 34, overflow: 'hidden',
+          },
+        }, character.friends.map(file => React.createElement('img', {
+          key: file, src: ASSET_ROOT + file, alt: '', draggable: false,
+          style: { display: 'block', flex: '1 1 0', minWidth: 0, maxWidth: 40,
+            height: 34, objectFit: 'contain', objectPosition: 'center bottom' },
+        }))))
+      }
+
+      function SkinConfig({ t }) {
+        const snapshot = React.useSyncExternalStore(subscribe, getSnapshot)
+        const character = selectedCharacter(form)
+        const [draft, setDraft] = React.useState(character)
+        const [saving, setSaving] = React.useState(false)
+        const [message, setMessage] = React.useState('')
+        React.useEffect(() => { setDraft(character) }, [character])
+        const ready = snapshot.status === 'ready' && snapshot.writable
+        const save = async event => {
+          event.preventDefault()
+          if (!ready || saving || draft === character) return
+          setSaving(true)
+          setMessage('')
+          try {
+            setMessage(await form.set('character', draft) ? 'saved' : 'failed')
+          } catch {
+            setMessage('failed')
+          } finally {
+            setSaving(false)
+          }
+        }
+        return React.createElement('form', { onSubmit: save, style: { display: 'grid', gap: 14 } },
+          React.createElement('div', null,
+            React.createElement('h4', { style: { margin: '0 0 6px' } }, t('title')),
+            React.createElement('p', { style: { margin: 0, color: 'var(--dsw-alias-label-secondary)' } }, t('hint')),
+          ),
+          React.createElement('fieldset', {
+            disabled: !ready || saving,
+            style: { border: 0, padding: 0, margin: 0, display: 'grid', gap: 8 },
+          }, characters.map(item => React.createElement('label', {
+            key: item.id,
+            style: {
+              display: 'flex', alignItems: 'center', gap: 12, cursor: ready ? 'pointer' : 'default',
+              padding: '8px 12px', borderRadius: 12,
+              border: `1px solid var(${draft === item.id ? '--dsw-alias-brand-primary' : '--dsw-alias-border-l1'})`,
+              background: 'var(--dsw-alias-bg-layer-1)',
+            },
+          },
+          React.createElement('input', { type: 'radio', name: 'sanrio-character', value: item.id,
+            checked: draft === item.id, onChange: () => { setDraft(item.id); setMessage('') } }),
+          React.createElement('img', { src: ASSET_ROOT + item.image, alt: '', 'aria-hidden': true,
+            style: { width: 42, height: 42, objectFit: 'contain' } }),
+          React.createElement('span', null, t(item.id)),
+          ))),
+          React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: 12 } },
+            React.createElement('button', { type: 'submit', disabled: !ready || saving || draft === character,
+              style: { padding: '7px 14px', borderRadius: 8, border: 0, cursor: 'pointer',
+                color: 'var(--dsw-alias-brand-text)', background: 'var(--dsw-alias-brand-primary)' } },
+              t(saving ? 'saving' : 'save')),
+            React.createElement('span', { role: message === 'failed' ? 'alert' : 'status' },
+              message ? t(message) : !ready ? t('unavailable') : ''),
+          ),
+        )
+      }
+
+      ctx.slots.inject('shell.overlay', () => ctx.slots.register({
+        name: 'shell.overlay', id: 'sanrio-mascot',
+      }, Mascot))
+      ctx.slots.inject('sidebar.brand.mark', () => ctx.slots.register({
+        name: 'sidebar.brand.mark', priority: -10,
+      }, BrandMark))
+      ctx.slots.inject('conversation.hero.brand.mark', () => ctx.slots.register({
+        name: 'conversation.hero.brand.mark', priority: -10,
+      }, BrandMark))
+      ctx.slots.inject('conversation.input.overlay', () => ctx.slots.register({
+        name: 'conversation.input.overlay', id: 'sanrio-peek', order: -100,
+      }, PeekOverlay))
+      ctx.slots.inject('conversation.session.header.actions', () => ctx.slots.register({
+        name: 'conversation.session.header.actions', id: 'sanrio-friends-strip', order: 100,
+      }, FriendsStrip))
+      ctx.slots.inject('plugins.bundle.config', () => ctx.slots.register({
+        name: 'plugins.bundle.config', key: PACKAGE, locale: 'sanrioSkin',
+      }, SkinConfig))
+    }
+
+    return { inject: ['theme', 'slots', 'configForms', 'locale'], apply }
+  },
+})
