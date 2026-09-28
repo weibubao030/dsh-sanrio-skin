@@ -6,14 +6,19 @@ export const Config = z.object({
   character: z.union(['pudding', 'kitty', 'kuromi', 'cinna']).default('pudding').volatile(),
 })
 
-const mascots = {
-  pudding: 'mascot.gif',
-  kitty: 'kitty-mascot.gif',
-  kuromi: 'kuromi-mascot.gif',
-  cinna: 'cinna-mascot.png',
-}
-const brandMarks = ['brandlogo.png', 'kitty-brandlogo.png', 'kuromi-brandlogo.png', 'cinna-brandlogo.png']
-const peekImages = ['peek.png', 'kitty-peek.png', 'kuromi-peek.png', 'cinna-peek.png']
+const assetGroups = [
+  ['pudding', 'gif', 15],
+  ['hello-kitty', 'gif', 12],
+  ['kuromi', 'gif', 11],
+  ['cinnamoroll', 'png', 10],
+]
+const imageFiles = assetGroups.flatMap(([folder, mascotType, friendCount]) => [
+  `${folder}/mascot.${mascotType}`,
+  `${folder}/brand.png`,
+  `${folder}/peek.png`,
+  ...Array.from({ length: friendCount }, (_, i) =>
+    `${folder}/friends/${String(i).padStart(2, '0')}.png`),
+])
 
 function localRequest(req) {
   const address = req.socket.remoteAddress
@@ -51,7 +56,7 @@ export function apply(ctx) {
   ctx.inject(['settings'], child => {
     child.effect(() => child.settings.configure({ auto: false }, ctx.fiber), 'dsh-sanrio-skin: settings')
   })
-  for (const file of [...Object.values(mascots), ...brandMarks, ...peekImages]) {
+  for (const file of imageFiles) {
     ctx.effect(() => ctx.webServer.register({
       kind: 'exact',
       path: `/sanrio-skin-assets/${file}`,
