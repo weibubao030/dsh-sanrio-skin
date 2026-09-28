@@ -7,9 +7,8 @@ Desktop.ini
 *.tmp
 *.tmp_*
 
-# build + deps (plugin package lives at repo root)
+# Local dependencies. Runtime entry points are tracked directly at repo root.
 node_modules/
-lib/
 
 # 布丁狗 source: keep 白天 (source art) + assets/ (plugin uses these);
 # ignore intermediate/debug crops from build pipelines.

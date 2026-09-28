@@ -1,19 +1,31 @@
 {
   "name": "dsh-sanrio-skin",
-  "version": "0.1.0",
-  "description": "Sanrio skin for DeepSeek Harness Web UI — native client plugin: 5 characters x light/dark registered into the theme runtime, Settings picker, and optional DOM decorations.",
+  "version": "0.5.1",
+  "description": "Four selectable Sanrio skins for DeepSeek Harness Web and Desktop",
   "license": "MIT",
   "type": "module",
-  "main": "lib/index.js",
+  "main": "./index.js",
   "exports": {
-    ".": "./lib/index.js",
-    "./client": "./lib/client.js",
+    ".": "./index.js",
+    "./client": "./client.js",
     "./package.json": "./package.json"
   },
   "files": [
-    "lib",
-    "assets",
+    "index.js",
+    "client.js",
     "cordis.patch.yml",
+    "assets/mascot.gif",
+    "assets/kitty-mascot.gif",
+    "assets/kuromi-mascot.gif",
+    "assets/cinna-mascot.png",
+    "assets/brandlogo.png",
+    "assets/kitty-brandlogo.png",
+    "assets/kuromi-brandlogo.png",
+    "assets/cinna-brandlogo.png",
+    "assets/peek.png",
+    "assets/kitty-peek.png",
+    "assets/kuromi-peek.png",
+    "assets/cinna-peek.png",
     "README.md",
     "LICENSE"
   ],
@@ -23,43 +35,22 @@
     },
     "client": {
       "inject": [
-        "@deepseek-ai/dsh-client-runtime",
-        "@deepseek-ai/dsh-client-locale",
         "@deepseek-ai/dsh-client-ui-theme",
+        "@deepseek-ai/dsh-client-ui-layout",
+        "@deepseek-ai/dsh-client-ui-slots",
         "@deepseek-ai/dsh-client-ui-settings",
-        "@deepseek-ai/dsh-client-ui-settings-general"
+        "@deepseek-ai/dsh-client-ui-plugin-manager",
+        "@deepseek-ai/dsh-client-ui-sidebar",
+        "@deepseek-ai/dsh-client-ui-conversation",
+        "@deepseek-ai/dsh-client-locale"
       ],
       "platform": "web"
     }
   },
-  "scripts": {
-    "build": "node scripts/build.mjs",
-    "watch": "node scripts/build.mjs --watch",
-    "typecheck": "tsc --noEmit"
-  },
-  "keywords": [
-    "deepseek-harness",
-    "dsh",
-    "dsh-plugin",
-    "skin",
-    "theme",
-    "sanrio",
-    "web-ui"
-  ],
   "peerDependencies": {
-    "@deepseek-ai/cordis": "^4.0.1",
-    "@deepseek-ai/dsh-client-locale": "^0.1.0-rc.6",
-    "@deepseek-ai/dsh-client-runtime": "^0.1.0-rc.6",
-    "@deepseek-ai/dsh-client-ui-settings": "^0.1.0-rc.6",
-    "@deepseek-ai/dsh-client-ui-settings-general": "^0.1.0-rc.6",
-    "@deepseek-ai/dsh-client-ui-theme": "^0.1.0-rc.6",
-    "react": "^18.2.0"
+    "@deepseek-ai/dsh": "0.2.0-rc.1"
   },
-  "devDependencies": {
-    "@types/node": "^22.10.0",
-    "@types/react": "^18.3.12",
-    "esbuild": "^0.25.0",
-    "react": "^18.3.1",
-    "typescript": "^5.6.3"
+  "dependencies": {
+    "@deepseek-ai/schemastery": "^3.18.4"
   }
 }
