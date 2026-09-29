@@ -207,9 +207,9 @@ window.__ModuleLoader__.load({
         unavailable: '插件设置暂时不可用。',
         pudding: '布丁狗', kitty: 'Hello Kitty', kuromi: '酷洛米', cinna: '玉桂狗',
         petDrag: '拖动吉祥物，或使用方向键移动',
-        petNeedsInput: '等你回答一下～',
-        petCompleted: '这轮已完成～',
-        petBlocked: '这轮没能继续，去会话看看',
+        petNeedsInput: '等你回答～',
+        petCompleted: '这轮完成啦～',
+        petBlocked: '遇到点状况，看看会话',
       },
       en: {
         title: 'Choose a skin',
@@ -218,9 +218,9 @@ window.__ModuleLoader__.load({
         unavailable: 'Plugin settings are unavailable.',
         pudding: 'Pompompurin', kitty: 'Hello Kitty', kuromi: 'Kuromi', cinna: 'Cinnamoroll',
         petDrag: 'Drag the mascot, or use arrow keys to move it',
-        petNeedsInput: 'Waiting for your answer',
-        petCompleted: 'This turn is complete',
-        petBlocked: 'This turn could not continue; check the conversation',
+        petNeedsInput: 'Waiting for you…',
+        petCompleted: 'Turn complete!',
+        petBlocked: 'Something came up. Check the chat.',
       },
     }
 
@@ -335,11 +335,13 @@ window.__ModuleLoader__.load({
         const activePanelId = usePanelInfo(info => info.activePanelId)
         const frameRef = React.useRef(null)
         const petRef = React.useRef(null)
+        const bubbleRef = React.useRef(null)
         const dragRef = React.useRef(null)
         const currentRef = React.useRef(null)
         const [saved, setSaved] = React.useState(readPetPosition)
         const [dragging, setDragging] = React.useState(false)
         const [notice, setNotice] = React.useState(null)
+        const [bubbleWidth, setBubbleWidth] = React.useState(160)
         const [bounds, setBounds] = React.useState(() => ({
           width: window.innerWidth, height: window.innerHeight, petWidth: 120, petHeight: 120,
         }))
@@ -428,44 +430,68 @@ window.__ModuleLoader__.load({
           ? needsInput ? 'needsInput' : notice?.sessionId === sessionId ? notice.kind : null
           : null
         const bubbleBelow = position.y < 110
-        const bubbleWidth = Math.min(200, Math.max(80, bounds.width - 16))
-        const bubbleX = clamp(position.x, 8, Math.max(8, bounds.width - bubbleWidth - 8))
-        const tailX = clamp(position.x + bounds.petWidth / 2 - bubbleX - 5, 15, bubbleWidth - 15)
         const label = kind === 'needsInput' ? t('petNeedsInput')
           : kind === 'completed' ? t('petCompleted') : t('petBlocked')
+        React.useLayoutEffect(() => {
+          if (!bubbleRef.current) return
+          const measureBubble = () => {
+            if (!bubbleRef.current) return
+            const width = Math.ceil(bubbleRef.current.getBoundingClientRect().width)
+            setBubbleWidth(previous => previous === width ? previous : width)
+          }
+          measureBubble()
+          const observer = new ResizeObserver(measureBubble)
+          observer.observe(bubbleRef.current)
+          return () => observer.disconnect()
+        }, [kind, label])
+        const bubbleX = clamp(position.x + (bounds.petWidth - bubbleWidth) / 2,
+          8, Math.max(8, bounds.width - bubbleWidth - 8))
+        const tailX = clamp(position.x + bounds.petWidth / 2 - bubbleX - 4,
+          14, Math.max(14, bubbleWidth - 22))
         const bubble = kind && React.createElement('div', {
+          ref: bubbleRef,
           role: kind === 'blocked' ? 'alert' : 'status',
           style: {
             position: 'absolute',
-            [bubbleBelow ? 'top' : 'bottom']: 'calc(100% + 10px)',
+            [bubbleBelow ? 'top' : 'bottom']: 'calc(100% + 5px)',
             left: bubbleX - position.x,
-            width: bubbleWidth,
+            width: 'max-content',
+            maxWidth: Math.max(0, Math.min(180, bounds.width - 16)),
             boxSizing: 'border-box',
-            padding: '8px 11px',
-            borderRadius: 12,
-            border: '1px solid var(--dsw-alias-border-l2)',
-            background: 'var(--dsw-alias-bg-overlay)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+            padding: '7px 11px',
+            borderRadius: 18,
+            border: '1px solid var(--dsw-specific-bubble-highlight)',
+            background: 'var(--dsw-specific-bubble)',
             color: 'var(--dsw-alias-label-primary)',
-            boxShadow: '0 6px 20px rgba(0, 0, 0, 0.14)',
-            fontSize: 13,
-            lineHeight: 1.4,
+            boxShadow: '0 3px 10px rgba(0, 0, 0, 0.08)',
+            fontSize: 12.5,
+            fontWeight: 500,
+            lineHeight: 1.35,
             pointerEvents: 'none',
             whiteSpace: 'normal',
+            overflowWrap: 'anywhere',
           },
-        }, label, React.createElement('span', {
+        }, React.createElement('span', {
+          'aria-hidden': true,
+          style: { color: 'var(--dsw-alias-brand-primary)', fontSize: 14, lineHeight: 1 },
+        }, '✦'), React.createElement('span', null, label), React.createElement('span', {
           'aria-hidden': true,
           style: {
             position: 'absolute',
-            [bubbleBelow ? 'top' : 'bottom']: -6,
+            [bubbleBelow ? 'top' : 'bottom']: -4,
             left: tailX,
-            width: 10, height: 10,
+            width: 8, height: 8,
             transform: 'rotate(45deg)',
-            background: 'var(--dsw-alias-bg-overlay)',
-            border: '1px solid var(--dsw-alias-border-l2)',
+            background: 'var(--dsw-specific-bubble)',
+            border: '1px solid var(--dsw-specific-bubble-highlight)',
             borderTop: bubbleBelow ? undefined : 0,
             borderLeft: bubbleBelow ? undefined : 0,
             borderBottom: bubbleBelow ? 0 : undefined,
             borderRight: bubbleBelow ? 0 : undefined,
+            borderRadius: bubbleBelow ? '3px 0 0 0' : '0 0 3px 0',
           },
         }))
 
