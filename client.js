@@ -4,6 +4,7 @@ window.__ModuleLoader__.load({
     const React = require('react')
     const PACKAGE = 'dsh-sanrio-skin'
     const ASSET_ROOT = '/sanrio-skin-assets/'
+    const PET_POSITION_KEY = 'dsh-sanrio-skin.pet-position.v1'
     const characters = [
       { id: 'pudding', image: 'pudding/mascot.gif', brand: 'pudding/brand.png', peek: 'pudding/peek.png', friends: Array.from({ length: 15 }, (_, i) => `pudding/friends/${String(i).padStart(2, '0')}.png`) },
       { id: 'kitty', image: 'hello-kitty/mascot.gif', brand: 'hello-kitty/brand.png', peek: 'hello-kitty/peek.png', friends: Array.from({ length: 12 }, (_, i) => `hello-kitty/friends/${String(i).padStart(2, '0')}.png`) },
@@ -205,6 +206,10 @@ window.__ModuleLoader__.load({
         failed: '保存失败，请重新选择。',
         unavailable: '插件设置暂时不可用。',
         pudding: '布丁狗', kitty: 'Hello Kitty', kuromi: '酷洛米', cinna: '玉桂狗',
+        petDrag: '拖动吉祥物，或使用方向键移动',
+        petNeedsInput: '等你回答～',
+        petCompleted: '这轮完成啦～',
+        petBlocked: '遇到点状况，看看会话',
       },
       en: {
         title: 'Choose a skin',
@@ -212,7 +217,57 @@ window.__ModuleLoader__.load({
         failed: 'Could not save. Please choose again.',
         unavailable: 'Plugin settings are unavailable.',
         pudding: 'Pompompurin', kitty: 'Hello Kitty', kuromi: 'Kuromi', cinna: 'Cinnamoroll',
+        petDrag: 'Drag the mascot, or use arrow keys to move it',
+        petNeedsInput: 'Waiting for you…',
+        petCompleted: 'Turn complete!',
+        petBlocked: 'Something came up. Check the chat.',
       },
+    }
+
+    function readPetPosition() {
+      try {
+        const value = JSON.parse(window.localStorage.getItem(PET_POSITION_KEY))
+        if (Number.isFinite(value?.x) && Number.isFinite(value?.y)
+          && value.x >= 0 && value.x <= 1 && value.y >= 0 && value.y <= 1) return value
+      } catch { /* Storage is optional for this window-only preference. */ }
+      return null
+    }
+
+    function savePetPosition(value) {
+      try { window.localStorage.setItem(PET_POSITION_KEY, JSON.stringify(value)) } catch { /* Keep dragging without persistence. */ }
+    }
+
+    function clamp(value, min, max) { return Math.min(Math.max(value, min), max) }
+
+    function petLimits(bounds) {
+      const minX = Math.min(8, Math.max(0, bounds.width - bounds.petWidth))
+      const maxX = Math.max(minX, bounds.width - bounds.petWidth - 8)
+      const minY = Math.min(56, Math.max(0, bounds.height - bounds.petHeight))
+      const maxY = Math.max(minY, bounds.height - bounds.petHeight - 8)
+      return { minX, maxX, minY, maxY }
+    }
+
+    function petCoordinates(bounds, saved) {
+      const { minX, maxX, minY, maxY } = petLimits(bounds)
+      return saved
+        ? { x: minX + saved.x * (maxX - minX), y: minY + saved.y * (maxY - minY) }
+        : { x: clamp(32, minX, maxX), y: clamp(bounds.height - bounds.petHeight - 56, minY, maxY) }
+    }
+
+    function petPositionFromPixels(bounds, x, y) {
+      const { minX, maxX, minY, maxY } = petLimits(bounds)
+      return {
+        x: (clamp(x, minX, maxX) - minX) / (maxX - minX || 1),
+        y: (clamp(y, minY, maxY) - minY) / (maxY - minY || 1),
+      }
+    }
+
+    function lastDurableSeq(entries) {
+      let last = 0
+      for (const entry of entries) {
+        if (entry.type === 'event' && entry.event.seq > last) last = entry.event.seq
+      }
+      return last
     }
 
     function selectedCharacter(form) {
@@ -238,24 +293,232 @@ window.__ModuleLoader__.load({
         return () => { unsubscribe(); removeOverride() }
       }, 'dsh-sanrio-skin: colors')
 
-      function Mascot() {
+      // A selected Session already owns its binding. Watch only new durable
+      // turn/end events, so opening history or reconnecting never replays a bubble.
+      function observeTurnEnds(sessionId, onEnd) {
+        let source
+        let unsubscribeEvents = () => {}
+        let lastSeq = 0
+        const attach = () => {
+          const next = ctx.sessions.binding(sessionId)?.eventSource
+          if (next === source) return
+          unsubscribeEvents()
+          source = next
+          if (!source) return
+          lastSeq = lastDurableSeq(source.getSnapshot().entries)
+          unsubscribeEvents = source.subscribe(() => {
+            const change = source.getSnapshot().change
+            if (change.kind === 'replace') {
+              lastSeq = lastDurableSeq(change.entries)
+              return
+            }
+            if (change.kind !== 'append') return
+            for (const entry of change.entries) {
+              if (entry.type !== 'event' || entry.event.seq <= lastSeq) continue
+              lastSeq = entry.event.seq
+              if (entry.event.type === 'turn/end') onEnd(entry.event)
+            }
+          })
+        }
+        const unsubscribeList = ctx.sessions.list.subscribe(attach)
+        attach()
+        return () => { unsubscribeList(); unsubscribeEvents() }
+      }
+
+      function Mascot({ useSessions, useSessionStatus, usePanelInfo, observeTurnEnds, t }) {
         const snapshot = React.useSyncExternalStore(subscribe, getSnapshot)
         const character = characters.find(item => item.id === snapshot.value?.character) ?? characters[0]
-        return React.createElement('img', {
-          src: ASSET_ROOT + character.image,
-          alt: '',
-          'aria-hidden': true,
-          draggable: false,
+        const sessionId = useSessions(state => Object.values(state.byId)
+          .find(row => (row.retainedBy.mainView ?? 0) > 0)?.id)
+        const needsInput = useSessionStatus(status => status.get(sessionId)?.pendingInteraction !== undefined)
+        const running = useSessionStatus(status => status.get(sessionId)?.running)
+        const activePanelId = usePanelInfo(info => info.activePanelId)
+        const frameRef = React.useRef(null)
+        const petRef = React.useRef(null)
+        const bubbleRef = React.useRef(null)
+        const dragRef = React.useRef(null)
+        const currentRef = React.useRef(null)
+        const [saved, setSaved] = React.useState(readPetPosition)
+        const [dragging, setDragging] = React.useState(false)
+        const [notice, setNotice] = React.useState(null)
+        const [bubbleWidth, setBubbleWidth] = React.useState(160)
+        const [bounds, setBounds] = React.useState(() => ({
+          width: window.innerWidth, height: window.innerHeight, petWidth: 120, petHeight: 120,
+        }))
+        const position = petCoordinates(bounds, saved)
+        currentRef.current = { sessionId, needsInput, activePanelId }
+
+        const measure = () => {
+          if (!frameRef.current || !petRef.current) return
+          const frame = frameRef.current.getBoundingClientRect()
+          const pet = petRef.current.getBoundingClientRect()
+          setBounds(previous => {
+            const next = { width: frame.width, height: frame.height, petWidth: pet.width, petHeight: pet.height }
+            return Object.keys(next).every(key => next[key] === previous[key]) ? previous : next
+          })
+        }
+        React.useLayoutEffect(() => {
+          measure()
+          const observer = new ResizeObserver(measure)
+          observer.observe(frameRef.current)
+          observer.observe(petRef.current)
+          return () => observer.disconnect()
+        }, [])
+
+        React.useEffect(() => {
+          setNotice(null)
+          if (!sessionId) return
+          return observeTurnEnds(sessionId, event => {
+            if (currentRef.current.sessionId !== sessionId
+              || currentRef.current.activePanelId !== null
+              || currentRef.current.needsInput) return
+            const reason = event.data.reason.kind
+            const kind = reason === 'completed' ? 'completed'
+              : ['blocked', 'error', 'max-tokens'].includes(reason) ? 'blocked' : null
+            if (kind) setNotice({ sessionId, seq: event.seq, kind })
+          })
+        }, [sessionId, observeTurnEnds])
+
+        React.useEffect(() => { if (running || needsInput || activePanelId !== null) setNotice(null) },
+          [running, needsInput, activePanelId])
+        React.useEffect(() => {
+          if (!notice) return
+          const timer = window.setTimeout(() => setNotice(current => current === notice ? null : current),
+            notice.kind === 'completed' ? 5000 : 9000)
+          return () => window.clearTimeout(timer)
+        }, [notice])
+
+        const stopDrag = event => {
+          const drag = dragRef.current
+          if (!drag || (event.pointerId !== undefined && drag.pointerId !== event.pointerId)) return
+          dragRef.current = null
+          setDragging(false)
+          if (drag.last) savePetPosition(drag.last)
+          if (event.currentTarget.hasPointerCapture?.(drag.pointerId))
+            event.currentTarget.releasePointerCapture(drag.pointerId)
+        }
+        const onPointerDown = event => {
+          if (event.button !== 0 || dragRef.current) return
+          event.preventDefault()
+          event.currentTarget.setPointerCapture(event.pointerId)
+          dragRef.current = {
+            pointerId: event.pointerId, x: event.clientX, y: event.clientY,
+            origin: position, last: null,
+          }
+          setDragging(true)
+        }
+        const onPointerMove = event => {
+          const drag = dragRef.current
+          if (!drag || drag.pointerId !== event.pointerId) return
+          const next = petPositionFromPixels(bounds,
+            drag.origin.x + event.clientX - drag.x, drag.origin.y + event.clientY - drag.y)
+          drag.last = next
+          setSaved(next)
+        }
+        const onKeyDown = event => {
+          const delta = event.shiftKey ? 40 : 16
+          const dx = event.key === 'ArrowLeft' ? -delta : event.key === 'ArrowRight' ? delta : 0
+          const dy = event.key === 'ArrowUp' ? -delta : event.key === 'ArrowDown' ? delta : 0
+          if (!dx && !dy) return
+          event.preventDefault()
+          const next = petPositionFromPixels(bounds, position.x + dx, position.y + dy)
+          setSaved(next)
+          savePetPosition(next)
+        }
+
+        const kind = activePanelId === null && sessionId
+          ? needsInput ? 'needsInput' : notice?.sessionId === sessionId ? notice.kind : null
+          : null
+        const bubbleBelow = position.y < 110
+        const label = kind === 'needsInput' ? t('petNeedsInput')
+          : kind === 'completed' ? t('petCompleted') : t('petBlocked')
+        React.useLayoutEffect(() => {
+          if (!bubbleRef.current) return
+          const measureBubble = () => {
+            if (!bubbleRef.current) return
+            const width = Math.ceil(bubbleRef.current.getBoundingClientRect().width)
+            setBubbleWidth(previous => previous === width ? previous : width)
+          }
+          measureBubble()
+          const observer = new ResizeObserver(measureBubble)
+          observer.observe(bubbleRef.current)
+          return () => observer.disconnect()
+        }, [kind, label])
+        const bubbleX = clamp(position.x + (bounds.petWidth - bubbleWidth) / 2,
+          8, Math.max(8, bounds.width - bubbleWidth - 8))
+        const tailX = clamp(position.x + bounds.petWidth / 2 - bubbleX - 4,
+          14, Math.max(14, bubbleWidth - 22))
+        const bubble = kind && React.createElement('div', {
+          ref: bubbleRef,
+          role: kind === 'blocked' ? 'alert' : 'status',
           style: {
             position: 'absolute',
-            left: '32px',
-            bottom: '56px',
-            width: 'min(120px, 15vw)',
-            height: 'auto',
+            [bubbleBelow ? 'top' : 'bottom']: 'calc(100% + 5px)',
+            left: bubbleX - position.x,
+            width: 'max-content',
+            maxWidth: Math.max(0, Math.min(180, bounds.width - 16)),
+            boxSizing: 'border-box',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+            padding: '7px 11px',
+            borderRadius: 18,
+            border: '1px solid var(--dsw-specific-bubble-highlight)',
+            background: 'var(--dsw-specific-bubble)',
+            color: 'var(--dsw-alias-label-primary)',
+            boxShadow: '0 3px 10px rgba(0, 0, 0, 0.08)',
+            fontSize: 12.5,
+            fontWeight: 500,
+            lineHeight: 1.35,
             pointerEvents: 'none',
-            userSelect: 'none',
+            whiteSpace: 'normal',
+            overflowWrap: 'anywhere',
           },
-        })
+        }, React.createElement('span', {
+          'aria-hidden': true,
+          style: { color: 'var(--dsw-alias-brand-primary)', fontSize: 14, lineHeight: 1 },
+        }, '✦'), React.createElement('span', null, label), React.createElement('span', {
+          'aria-hidden': true,
+          style: {
+            position: 'absolute',
+            [bubbleBelow ? 'top' : 'bottom']: -4,
+            left: tailX,
+            width: 8, height: 8,
+            transform: 'rotate(45deg)',
+            background: 'var(--dsw-specific-bubble)',
+            border: '1px solid var(--dsw-specific-bubble-highlight)',
+            borderTop: bubbleBelow ? undefined : 0,
+            borderLeft: bubbleBelow ? undefined : 0,
+            borderBottom: bubbleBelow ? 0 : undefined,
+            borderRight: bubbleBelow ? 0 : undefined,
+            borderRadius: bubbleBelow ? '3px 0 0 0' : '0 0 3px 0',
+          },
+        }))
+
+        return React.createElement('div', {
+          ref: frameRef,
+          style: { position: 'absolute', inset: 0, pointerEvents: 'none' },
+        }, React.createElement('div', {
+          ref: petRef,
+          role: 'group',
+          tabIndex: 0,
+          'aria-label': t('petDrag'),
+          title: t('petDrag'),
+          onPointerDown, onPointerMove,
+          onPointerUp: stopDrag, onPointerCancel: stopDrag,
+          onLostPointerCapture: stopDrag, onKeyDown,
+          style: {
+            position: 'absolute', left: position.x, top: position.y,
+            width: 'min(120px, 15vw)', pointerEvents: 'auto',
+            userSelect: 'none', touchAction: 'none',
+            cursor: dragging ? 'grabbing' : 'grab',
+            WebkitAppRegion: 'no-drag',
+          },
+        }, bubble, React.createElement('img', {
+          src: ASSET_ROOT + character.image, alt: '', 'aria-hidden': true, draggable: false,
+          onLoad: measure,
+          style: { display: 'block', width: '100%', height: 'auto', pointerEvents: 'none' },
+        })))
       }
 
       function BrandMark({ size, className }) {
@@ -403,7 +666,8 @@ window.__ModuleLoader__.load({
       }
 
       ctx.slots.inject('shell.overlay', () => ctx.slots.register({
-        name: 'shell.overlay', id: 'sanrio-mascot',
+        name: 'shell.overlay', id: 'sanrio-mascot', locale: 'sanrioSkin',
+        inject: () => ({ observeTurnEnds }),
       }, Mascot))
       ctx.slots.inject('sidebar.brand.mark', () => ctx.slots.register({
         name: 'sidebar.brand.mark', priority: -10,
@@ -422,6 +686,6 @@ window.__ModuleLoader__.load({
       }, SkinConfig))
     }
 
-    return { inject: ['theme', 'slots', 'configForms', 'locale'], apply }
+    return { inject: ['theme', 'slots', 'configForms', 'locale', 'sessions'], apply }
   },
 })
