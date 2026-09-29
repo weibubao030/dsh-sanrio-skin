@@ -201,21 +201,15 @@ window.__ModuleLoader__.load({
     const copy = {
       zh: {
         title: '选择皮肤',
-        hint: '选择角色后保存。浅色、深色和跟随系统继续使用 DSH 的外观设置。',
-        save: '保存皮肤',
-        saving: '保存中…',
-        saved: '已保存',
-        failed: '保存失败，请重试。',
+        hint: '选中即切换并保存。浅色、深色和跟随系统继续使用 DSH 的外观设置。',
+        failed: '保存失败，请重新选择。',
         unavailable: '插件设置暂时不可用。',
         pudding: '布丁狗', kitty: 'Hello Kitty', kuromi: '酷洛米', cinna: '玉桂狗',
       },
       en: {
         title: 'Choose a skin',
-        hint: 'Choose a character and save. DSH Appearance still controls light, dark, and system modes.',
-        save: 'Save skin',
-        saving: 'Saving…',
-        saved: 'Saved',
-        failed: 'Could not save. Please try again.',
+        hint: 'Selecting a character switches and saves right away. DSH Appearance still controls light, dark, and system modes.',
+        failed: 'Could not save. Please choose again.',
         unavailable: 'Plugin settings are unavailable.',
         pudding: 'Pompompurin', kitty: 'Hello Kitty', kuromi: 'Kuromi', cinna: 'Cinnamoroll',
       },
@@ -357,55 +351,54 @@ window.__ModuleLoader__.load({
       function SkinConfig({ t }) {
         const snapshot = React.useSyncExternalStore(subscribe, getSnapshot)
         const character = selectedCharacter(form)
-        const [draft, setDraft] = React.useState(character)
-        const [saving, setSaving] = React.useState(false)
+        const [pending, setPending] = React.useState(null)
         const [message, setMessage] = React.useState('')
-        React.useEffect(() => { setDraft(character) }, [character])
         const ready = snapshot.status === 'ready' && snapshot.writable
-        const save = async event => {
-          event.preventDefault()
-          if (!ready || saving || draft === character) return
-          setSaving(true)
+        const selected = pending ?? character
+        React.useEffect(() => {
+          if (pending !== null && pending === character) setPending(null)
+        }, [character, pending])
+        const choose = async id => {
+          if (!ready || id === selected) return
+          setPending(id)
           setMessage('')
+          let accepted = false
           try {
-            setMessage(await form.set('character', draft) ? 'saved' : 'failed')
+            accepted = await form.set('character', id)
           } catch {
+            accepted = false
+          }
+          if (!accepted) {
+            setPending(current => (current === id ? null : current))
             setMessage('failed')
-          } finally {
-            setSaving(false)
           }
         }
-        return React.createElement('form', { onSubmit: save, style: { display: 'grid', gap: 14 } },
+        return React.createElement('div', { style: { display: 'grid', gap: 14 } },
           React.createElement('div', null,
             React.createElement('h4', { style: { margin: '0 0 6px' } }, t('title')),
             React.createElement('p', { style: { margin: 0, color: 'var(--dsw-alias-label-secondary)' } }, t('hint')),
           ),
           React.createElement('fieldset', {
-            disabled: !ready || saving,
+            disabled: !ready,
             style: { border: 0, padding: 0, margin: 0, display: 'grid', gap: 8 },
           }, characters.map(item => React.createElement('label', {
             key: item.id,
             style: {
               display: 'flex', alignItems: 'center', gap: 12, cursor: ready ? 'pointer' : 'default',
               padding: '8px 12px', borderRadius: 12,
-              border: `1px solid var(${draft === item.id ? '--dsw-alias-brand-primary' : '--dsw-alias-border-l1'})`,
+              border: `1px solid var(${selected === item.id ? '--dsw-alias-brand-primary' : '--dsw-alias-border-l1'})`,
               background: 'var(--dsw-alias-bg-layer-1)',
             },
           },
           React.createElement('input', { type: 'radio', name: 'sanrio-character', value: item.id,
-            checked: draft === item.id, onChange: () => { setDraft(item.id); setMessage('') } }),
+            checked: selected === item.id,
+            onChange: () => { void choose(item.id) } }),
           React.createElement('img', { src: ASSET_ROOT + item.image, alt: '', 'aria-hidden': true,
             style: { width: 42, height: 42, objectFit: 'contain' } }),
           React.createElement('span', null, t(item.id)),
           ))),
-          React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: 12 } },
-            React.createElement('button', { type: 'submit', disabled: !ready || saving || draft === character,
-              style: { padding: '7px 14px', borderRadius: 8, border: 0, cursor: 'pointer',
-                color: 'var(--dsw-alias-brand-text)', background: 'var(--dsw-alias-brand-primary)' } },
-              t(saving ? 'saving' : 'save')),
-            React.createElement('span', { role: message === 'failed' ? 'alert' : 'status' },
-              message ? t(message) : !ready ? t('unavailable') : ''),
-          ),
+          React.createElement('span', { role: message === 'failed' ? 'alert' : 'status' },
+            message ? t(message) : !ready ? t('unavailable') : ''),
         )
       }
 
