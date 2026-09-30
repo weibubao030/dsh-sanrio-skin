@@ -1,63 +1,108 @@
 # dsh-sanrio-skin
 
-三丽鸥皮肤，面向 DeepSeek Harness 0.2 系列的 Web 与官方 Desktop 客户端。
+给 DeepSeek Harness（DSH）换上一套三丽鸥皮肤。支持官方桌面版和 Web 版，可以在布丁狗、Hello Kitty、酷洛米和玉桂狗之间随时切换。
 
-运行时版本声明为 `^0.2.0-rc.1`，允许 0.2.0 的 RC1 及后续 RC、0.2.0 正式版和后续 0.2.x 正式补丁版本；不自动放行 0.3 系列。目前以 RC1 为开发基线，已核对 RC2 中本插件使用的官方接口与相关布局源码，未发现破坏性改动；RC2 的实际界面效果仍需手动验收。版本范围表示允许加载，不代表其中每个版本都已验收。
+每套皮肤都有浅色和深色配色，还会换上角色图标、输入框旁的装饰图、标题栏下沿的一排好友，以及一只可以拖动的小吉祥物。
 
-这是一个最小 DSH bundle：`cordis.patch.yml` 插入一个 Host 插件条目，`package.json` 的 `dsh.client` 声明浏览器插件。浏览器侧通过官方 `ctx.theme.overrideTokens()` 覆盖浅色和深色 token，在 `plugins.bundle.config` 槽位提供角色选择。四套皮肤共用相同的图片位置：`sidebar.brand.mark` 放角色图标，`conversation.hero.brand.mark` 放新会话页角色图标，`conversation.input.overlay` 在会话输入框上缘放右侧大图，`conversation.session.header.actions` 挂载标题栏下沿的好友条，`shell.overlay` 放可拖动的窗口内吉祥物。角色选择通过 DSH 的 Host 配置表单保存；DSH 自带的「浅色 / 深色 / 跟随系统」继续控制模式。在插件管理页禁用或移除本 bundle 即恢复默认外观。
+## 有哪些角色？
 
-## 安装
+| 角色 | 配色风格 |
+| --- | --- |
+| 布丁狗 | 奶油白底，搭配红棕色 |
+| Hello Kitty | 柔白底，搭配蝴蝶结红 |
+| 酷洛米 | 灰紫底，搭配紫粉色 |
+| 玉桂狗 | 蓝白底，搭配天空蓝 |
 
-本仓库已包含可运行的 `index.js` 和 `client.js`，无需构建。**从源码目录安装前**，先在本仓库运行以下命令，让链接目标拥有自己的运行依赖：
+默认使用布丁狗。四个角色都支持浅色、深色和跟随系统；深色模式使用柔和的深色背景，角色颜色主要用于按钮和选中状态。
+
+My Melody 暂时没有成套素材，还未加入。
+
+## 怎么安装？
+
+### 1. 下载并准备插件
+
+把仓库下载到电脑上。如果你使用 Git，可以在终端运行：
 
 ```sh
+git clone https://github.com/weibubao030/dsh-sanrio-skin.git
+cd dsh-sanrio-skin
 npm install --omit=dev --legacy-peer-deps --ignore-scripts --package-lock=false
 ```
 
-DSH 官方的本地目录安装会将仓库链接到 profile；链接目标需保有自己的 `node_modules`。本插件的 Host 入口使用 `@deepseek-ai/schemastery`，没有上述依赖时会在导入阶段失败。这个准备步骤只针对目录安装；从 npm 包或 `.tgz` 安装由包管理器处理依赖。
+如果你已经下载了仓库，只需要在仓库文件夹里运行最后一条 `npm install` 命令。它会安装插件需要的依赖，不用再运行构建命令。这个步骤需要电脑上有 Node.js 和 npm。
 
-- **官方 Desktop**：完成上述目录准备后，在应用内的「插件」页选择本仓库的绝对路径进行安装。若插件显示「运行中」且皮肤已出现，即可使用；若管理器提示需要重启或组件未运行，再完全退出并重开应用。Desktop 使用独立的 `desktop` profile；不要用外部 `dsh` CLI 修改它。
-- **Web**：`dsh plugin --profile web add <本仓库绝对路径>`，然后重启 `dsh web`。
+### 2. 安装到 DSH
 
-## 皮肤设置
+**桌面版：** 打开 DSH 应用内的「插件」页，用本地目录方式安装，填入这个仓库文件夹的完整路径。安装后启用插件；如果显示「运行中」且皮肤已经出现，就可以直接使用。如果应用提示需要重启，或插件没有运行，请完全退出 DSH 后重新打开。
 
-在左侧「插件」页打开 `dsh-sanrio-skin` 详情，选中布丁狗、Hello Kitty、酷洛米或玉桂狗即立即切换并保存，没有单独的确认按钮。默认布丁狗。角色设置由官方配置接口持久化；页面重新打开后读取已保存的选择。
+桌面版的插件请在应用内管理。
 
-四个角色各有浅色、深色配色、品牌图标、一张吉祥物、一张输入框右侧大图和一组好友图；跟随系统由 DSH 内建外观设置负责。大图贴在输入卡上缘，不占用输入区高度，也不接收鼠标操作。图片由 Host 的精确 `/sanrio-skin-assets/*` 路由提供。My Melody 没有对应的成套图片素材，不纳入计划。
+**Web 版：** 在仓库文件夹里运行下面的命令，然后重启 `dsh web`：
 
-| 皮肤 | 配色 | 左下角吉祥物 | 侧栏／新会话图标 | 输入框右侧大图 |
-| --- | --- | --- | --- | --- |
-| 布丁狗 | 奶油黄、红棕 | `pudding/mascot.gif` | `pudding/brand.png` | `pudding/peek.png` |
-| Hello Kitty | 柔白、蝴蝶结红 | `hello-kitty/mascot.gif` | `hello-kitty/brand.png` | `hello-kitty/peek.png` |
-| 酷洛米 | 雾紫、灰粉 | `kuromi/mascot.gif` | `kuromi/brand.png` | `kuromi/peek.png` |
-| 玉桂狗 | 蓝白、天空蓝 | `cinnamoroll/mascot.png` | `cinnamoroll/brand.png` | `cinnamoroll/peek.png` |
+```sh
+dsh plugin --profile web add "$PWD"
+```
 
-`shell.overlay` 是覆盖整个应用框架的浮层，包括右侧边栏，不能作为对话列专属背景。因此大图放在官方 `conversation.input.overlay` 内，跟随输入卡布局，右侧边栏打开时也留在对话列。该槽位的宿主锚点是绝对定位、零高度；大图以低透明度作装饰。布丁狗和酷洛米素材本身是探头构图；Hello Kitty 和玉桂狗素材是完整插画。不通过宿主内部 DOM 定位来模拟它。
+## 怎么切换皮肤？
 
-## 窗口内吉祥物
+打开 DSH 的「插件」页，进入 `dsh-sanrio-skin` 的详情，选择你喜欢的角色即可。
 
-拖动吉祥物可在 DSH 窗口内调整位置；聚焦吉祥物后也可使用方向键移动，按住 Shift 可加快移动。位置只保存在当前浏览器的本地偏好中，窗口缩放和切换角色时继续使用；插件角色选择仍由官方配置表单保存。浮层空白区域和气泡都不会拦截下方操作。初版保留现有 GIF／PNG，不提供点击台词或按状态切换动作。
+选中后会立即切换并保存，没有额外的保存按钮。重新打开页面后，仍会保留上次的选择；如果保存失败，选择会退回原来的角色，并显示提示。
 
-气泡只针对当前打开的会话：官方 `useSessionStatus` 有 `pendingInteraction` 时持续提示「等你回答～」；新发生的 `turn/end` 为 `completed` 时短暂提示「这轮完成啦～」；`blocked`、`error` 或 `max-tokens` 时提示「遇到点状况，看看会话」。四套皮肤共用圆润的小气泡，颜色跟随各自的主题 token。用户主动停止不弹受阻提示。打开历史会话、刷新页面或重连不会重播过去的完成消息。`completed` 仅表示这一轮正常结束，不保证整项任务已经完成。完成与受阻来自当前会话公开的 `SessionBinding.eventSource`，不根据对话文字或 `running: false` 猜测。
+浅色、深色或跟随系统，继续在 DSH 自带的外观设置里调整。
 
-好友条使用仓库现成图片：布丁狗 15 张、Hello Kitty 12 张、酷洛米 11 张、玉桂狗 10 张，分别放在角色的 `friends/` 目录，以 `00.png` 起顺序编号。它从官方标题栏动作槽挂载一个零高度组件，测量所在标题栏的下沿，让图片沿着对话列标题栏底边排列。该槽位并非专用装饰槽位；测量依赖标题栏的语义 `header` 元素，不依赖 CSS-module hash。图片不接收点击，右侧边栏打开时随对话列移动。更改图片路径后，请完全退出并重开 DSH，再手动验收。
+## 吉祥物怎么玩？
 
-布丁狗配色以吉祥物的奶油黄和红棕色为参考：浅色保持奶油白底，深色使用暖深灰底，仅在操作和选中状态使用焦糖色。
+用鼠标拖动吉祥物，就能把它放到窗口里喜欢的位置。也可以先让它获得键盘焦点，再用方向键移动；按住 Shift 时移动得更快。
 
-另外三套沿用同一调色原则：Hello Kitty 用柔白底与蝴蝶结红，酷洛米用灰紫底与紫粉强调，玉桂狗用浅蓝白底与天空蓝强调。深色模式的底色均保持低彩度，不把角色强调色铺满整页。
+位置会保存在当前浏览器或桌面窗口使用的本地存储中。切换角色或调整窗口大小后，也会保留位置偏好。
 
-没有额外字体依赖。吉祥物位置使用 localStorage 保存一个窗口内坐标偏好；好友条的精确定位仍受 DSH 标题栏布局变更影响。
+吉祥物还会为当前打开的会话显示小气泡：
 
-## 文件
-
-| 文件 | 作用 |
+| 气泡 | 什么时候出现 |
 | --- | --- |
-| `package.json`、`cordis.patch.yml` | 官方 bundle 与 client 模块声明 |
-| `index.js` | Host 侧角色配置 schema 和图片路由 |
-| `client.js` | 浏览器侧主题覆盖、插件详情配置、品牌图标、标题栏好友条、输入框装饰和可拖动吉祥物气泡 |
-| `assets/<角色>/` | 插件实际使用的图片：`mascot`、`brand.png`、`peek.png` 和 `friends/00.png` 起编号的好友图；仅此目录进入发布包 |
-| `source-assets/<角色>/` | 原项目的未加工素材，保留原始文件名；`pudding/avatar-derived.jpg` 是旧版生成但现在未使用的头像图 |
+| 等你回答～ | 会话需要你的输入时 |
+| 这轮完成啦～ | 当前这一轮正常结束后，短暂显示 |
+| 遇到点状况，看看会话 | 当前这一轮受阻、出错或输出达到上限时 |
 
-仓库根目录只保留插件入口、包声明和文档。旧浏览器脚本、旧构建脚本与 TypeScript 插件实现已从当前目录移除；原素材统一存放在 `source-assets/`，运行图片统一存放在 `assets/`。
+「这轮完成」只表示这一轮正常结束，整项任务是否完成仍以会话内容为准。主动停止时不会弹出受阻提示，打开历史会话或刷新页面也不会重播旧提醒。
 
-官方协议参考：[bundle 发布指南](https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/user/develop/basic/publish.md)、[客户端模块](https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/subsystems/client-modules.md)、[主题服务](https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/client/ui-theme/src/client/index.ts)、[Slots 规范](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.2.0-rc.1/docs/subsystems/slots.zh.md)、[会话状态](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.2.0-rc.1/packages/client/ui-session/src/client/index.ts)、[客户端事件源](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.2.0-rc.1/packages/api/session-controller/src/client/contract/events.ts)、[结束原因](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.2.0-rc.1/docs/subsystems/session.md)、[对话槽位定义](https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/client/ui-conversation/src/client/contract/slots.ts)、[侧栏品牌槽位](https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/client/ui-sidebar/src/client/contract/slots.ts)、[浮层槽位](https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/client/ui-layout/src/client/AppFrame.tsx)。
+吉祥物目前使用现有的 GIF 或 PNG 图片，还没有点击台词，也不会根据会话状态切换动作。
+
+## 常见问题
+
+### 支持哪个版本的 DSH？
+
+面向 DSH 0.2 系列，版本声明为 `^0.2.0-rc.1`：允许 0.2.0 的 RC1、RC2 及后续 RC，也允许 0.2.x 的正式版本，不自动放行 0.3 系列。
+
+RC1 是当前开发基线。我们已核对 RC2 中插件用到的接口和相关布局源码，未发现破坏性改动；RC2 的实际显示效果仍需要手动验收。允许安装的版本不代表每个版本都已实际验收。
+
+### 装饰图会挡住输入框或右侧边栏吗？
+
+输入框旁的装饰图和标题栏好友条不占用额外高度，也不接收点击。打开右侧边栏时，它们会跟着对话区域移动。吉祥物本身可以拖动，但它周围的空白区域和提示气泡不会拦截点击。
+
+好友条的位置依赖 DSH 的标题栏布局。以后升级 DSH 时，建议看一下它有没有遮住标题、标签或按钮。
+
+### 更新插件后，为什么还是旧效果？
+
+更新了插件代码或图片后，请完全退出 DSH，再重新打开。如果插件管理页仍提示版本不兼容，请确认安装的是更新后的插件；需要重新安装时，在应用内卸载旧版，再安装新版。
+
+### 怎样恢复 DSH 原来的样子？
+
+在插件管理页禁用或卸载 `dsh-sanrio-skin`，颜色和装饰图片就会恢复。
+
+## 想修改这套皮肤？
+
+仓库直接提供可运行的 JavaScript，没有构建步骤。主要文件如下：
+
+| 文件或目录 | 用途 |
+| --- | --- |
+| `package.json`、`cordis.patch.yml` | 插件声明和加载配置 |
+| `index.js` | 角色设置和图片服务 |
+| `client.js` | 配色、角色切换、图片装饰和吉祥物 |
+| `assets/` | 插件运行时使用的四套角色图片 |
+| `source-assets/` | 保留的原始素材，不包含在发布包中 |
+
+插件通过 DSH 官方的主题、配置表单和槽位接口接入。修改时请保留这些接口；好友条另外使用语义标题栏元素测量位置，DSH 布局升级后需要手动检查。
+
+开发细节和验收要求见 [AGENTS.md](./AGENTS.md)。官方参考：[插件发布指南](https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/user/develop/basic/publish.md)、[客户端模块](https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/subsystems/client-modules.md)、[槽位协议](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.2.0-rc.1/docs/subsystems/slots.zh.md)。
