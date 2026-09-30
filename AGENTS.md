@@ -2,7 +2,7 @@
 
 ## 目标
 
-按 DeepSeek Harness 官方 bundle、client module、ThemeRuntime、配置表单和 Slots 协议，提供能在官方 Desktop 0.2.0-rc.1 中使用的四角色皮肤。优先使用官方扩展点，不依赖 CSS-module hash，也不复制 DSH 的外观状态。好友条是一次基于官方槽位挂载、测量语义标题栏位置的实验。
+按 DeepSeek Harness 官方 bundle、client module、ThemeRuntime、配置表单和 Slots 协议，提供能在官方 Desktop 0.2 系列中使用的四角色皮肤。运行时约束使用 `^0.2.0-rc.1`，不锁定单个 RC；RC1 是开发基线，RC2 已核对所用接口与相关布局源码，实际界面仍由用户手动验收。优先使用官方扩展点，不依赖 CSS-module hash，也不复制 DSH 的外观状态。好友条是一次基于官方槽位挂载、测量语义标题栏位置的实验。
 
 ## 当前结构
 

@@ -1,6 +1,8 @@
 # dsh-sanrio-skin
 
-三丽鸥皮肤，面向 DeepSeek Harness 0.2.0-rc.1 的 Web 与官方 Desktop 客户端。
+三丽鸥皮肤，面向 DeepSeek Harness 0.2 系列的 Web 与官方 Desktop 客户端。
+
+运行时版本声明为 `^0.2.0-rc.1`，允许 0.2.0 的 RC1 及后续 RC、0.2.0 正式版和后续 0.2.x 正式补丁版本；不自动放行 0.3 系列。目前以 RC1 为开发基线，已核对 RC2 中本插件使用的官方接口与相关布局源码，未发现破坏性改动；RC2 的实际界面效果仍需手动验收。版本范围表示允许加载，不代表其中每个版本都已验收。
 
 这是一个最小 DSH bundle：`cordis.patch.yml` 插入一个 Host 插件条目，`package.json` 的 `dsh.client` 声明浏览器插件。浏览器侧通过官方 `ctx.theme.overrideTokens()` 覆盖浅色和深色 token，在 `plugins.bundle.config` 槽位提供角色选择。四套皮肤共用相同的图片位置：`sidebar.brand.mark` 放角色图标，`conversation.hero.brand.mark` 放新会话页角色图标，`conversation.input.overlay` 在会话输入框上缘放右侧大图，`conversation.session.header.actions` 挂载标题栏下沿的好友条，`shell.overlay` 放可拖动的窗口内吉祥物。角色选择通过 DSH 的 Host 配置表单保存；DSH 自带的「浅色 / 深色 / 跟随系统」继续控制模式。在插件管理页禁用或移除本 bundle 即恢复默认外观。
 
